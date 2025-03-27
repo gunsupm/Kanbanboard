@@ -28,6 +28,7 @@
         v-for="column in columns"
         :key="column.id"
         class="column"
+        :style="{ backgroundColor: column.color }"
       >
         <h2>{{ column.name }}</h2>
         <button class="add-task-btn" @click="addTask(column.id)">
@@ -57,6 +58,14 @@
             placeholder="Column name..."
             type="text"
           />
+
+          <label for="colColor">Column Color</label>
+          <input
+            id="colColor"
+            v-model="colColor"
+            placeholder="Column Color(ex.#ffffff)..."
+            type="color"
+          />
         </div>
         <div class="modal-footer">
           <button @click="confirmAddColumn">Done</button>
@@ -82,25 +91,30 @@ interface Task {
 interface Column {
   id: number;
   name: string;
+  color: string; 
   tasks: Task[];
+
 }
 
 // State สำหรับเก็บข้อมูล column
 const columns = ref<Column[]>([
-  { id: 1, name: 'To Do', tasks: [] },
-  { id: 2, name: 'Doing', tasks: [] },
-  { id: 3, name: 'Done', tasks: [] }
+  { id: 1, name: 'To Do', color: '#f5f5f5', tasks: [] },
+  { id: 2, name: 'Doing', color: '#add8e6', tasks: [] },
+  { id: 3, name: 'Done', color: '#90ee90', tasks: [] }
 ]);
 
 // State สำหรับควบคุม modal
 const openModal = ref(false);
 // State สำหรับเก็บชื่อคอลัมน์ใหม่
 const colName = ref('');
+// State สำหรับเก็บสีคอลัมน์ใหม่
+const colColor = ref('#ffffff');
 
 // ฟังก์ชันปิด Modal
 const closeModal = () => {
   openModal.value = false;
   colName.value = ''; // เคลียร์ค่าชื่อคอลัมน์
+  colColor.value = '#ffffff';
 };
 
 // ฟังก์ชันสร้างคอลัมน์ใหม่
@@ -113,6 +127,7 @@ const confirmAddColumn = () => {
   columns.value.push({
     id: Date.now(),  // ใช้ timestamp หรือ uuid ก็ได้
     name: colName.value,
+    color: colColor.value,
     tasks: []
   });
 
@@ -120,7 +135,6 @@ const confirmAddColumn = () => {
 };
 
 // add task in column fuction
-// ฟังก์ชันเพิ่ม Task ลงในคอลัมน์
 const addTask = (columnId: number) => {
   const column = columns.value.find((col) => col.id === columnId);
   if (!column) return;
@@ -299,34 +313,50 @@ const saveTitle = () => {
   border: 3px solid #000000;
   width: 400px;
   max-width: 90%;
+  height: 800px;
   padding: 20px;
   text-align: left;
+  font-size: 28px;
 }
 .modal-content h2 {
-  margin: 0 0 10px 0;
+  margin: 20px 0 10px 30px;
 }
 .modal-body {
   margin-bottom: 20px;
 }
 .modal-body label {
+  margin: 30px 0 10px 30px;
+  font-size: 25px;
   display: block;
-  margin-bottom: 5px;
   font-weight: bold;
 }
-.modal-body input {
-  width: 100%;
+.modal-body input[type="text"] {
+  margin-left: 50px;
+  font-size: 20px;
+  width: 300px;
+  height: 50px;
   padding: 8px;
   box-sizing: border-box;
+  margin-bottom: 10px;
+}
+.modal-body input[type="color"] {
+  border: 5px solid #000000;
+  margin-top: 20px;
+  margin-left: 50px;
+  width: 300px;
+  height: 300px;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .modal-footer {
   text-align: right;
 }
 .modal-footer button {
+  margin-top: 50px;
   margin-left: 10px;
   padding: 8px 16px;
   cursor: pointer;
 }
-
-
 </style>
