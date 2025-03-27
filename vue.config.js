@@ -1,4 +1,6 @@
 module.exports = {  
 
-  publicPath: '/Kanbanboard/'  
+  publicPath: process.env.NODE_ENV === 'production'
+  ?'/Kanbanboard/' //
+  :'/'  
 }
