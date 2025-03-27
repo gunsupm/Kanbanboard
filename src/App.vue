@@ -19,8 +19,82 @@
     <button class="editred" @click="toggleEdit">
       <img src="../pic/editredicon.png" />
     </button>
-    <button class="NEWCOLUMN" @click="openModal = true">ADD COLUMN</button>
+    <button class="ADDTASKBTN" @click="openTaskModal"> NEW TASK </button>
   </div>
+  <!-- Modal สำหรับ Add Task -->
+  <div v-if="openTaskModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>NEW TASK</h2>
+        <div class="modal-body">
+          <!-- เลือก Column -->
+          <label>Choose Column</label>
+          <select v-model="selectedColumnId">
+            <option disabled value="">Select column...</option>
+            <option
+              v-for="column in columns"
+              :key="column.id"
+              :value="column.id"
+            >
+              {{ column.name }}
+            </option>
+          </select>
+
+          <!-- Task Name -->
+          <label>Task name</label>
+          <input
+            v-model="taskName"
+            placeholder="Task name..."
+            type="text"
+          />
+
+          <!-- Tag -->
+          <label>Tag</label>
+          <div class="tag-input-area">
+            <input
+              v-model="tagInput"
+              placeholder="name..."
+              type="text"
+            />
+            <button @click="addTag">Add New Tag</button>
+          </div>
+          <!-- แสดงรายการ Tag ที่ผู้ใช้เพิ่ม -->
+          <div class="tag-list">
+            <span
+              v-for="(tag, idx) in tags"
+              :key="idx"
+              class="tag"
+            >
+              #{{ tag }}
+            </span>
+          </div>
+
+          <!-- Member -->
+          <label>Member</label>
+          <div class="member-input-area">
+            <input
+              v-model="memberInput"
+              placeholder="@..."
+              type="text"
+            />
+            <button @click="addMember">Add New Member</button>
+          </div>
+          <!-- แสดงรายการ Member ที่ผู้ใช้เพิ่ม -->
+          <div class="member-list">
+            <span
+              v-for="(member, idx) in members"
+              :key="idx"
+              class="member"
+            >
+              @{{ member }}
+            </span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="confirmAddTask">Done</button>
+          <button @click="closeTaskModal">Cancel</button>
+        </div>
+      </div>
+    </div>
 
   <!-- Columns -->
   <div class="columns-container">
@@ -31,23 +105,39 @@
         :style="{ backgroundColor: column.color }"
       >
         <h2>{{ column.name }}</h2>
-        <button class="add-task-btn" @click="addTask(column.id)">
-          NEW TASK
-        </button>
-        
         <div
           v-for="task in column.tasks"
           :key="task.id"
           class="task"
         >
-          <p>{{ task.title }}</p>
-
+          <p class="task-name">{{ task.title }}</p>
+          <!-- แสดง Tags -->
+          <div class="tag-container">
+            <span
+              v-for="(tag, idx) in task.labels"
+              :key="idx"
+              class="tag"
+            >
+              #{{ tag }}
+            </span>
+          </div>
+          <!-- แสดง Members -->
+          <div class="member-container">
+            <span
+              v-for="(member, idx) in task.assignees"
+              :key="idx"
+              class="member"
+            >
+              @{{ member }}
+            </span>
+          </div>
         </div>
       </div>
+      <div class="ADDCOL">
+      <button class="NEWCOLUMN" @click="openModalAddCol = true">ADD COLUMN</button></div>
     </div>
-
-     <!-- Modal สำหรับ Add Column -->
-     <div v-if="openModal" class="modal-overlay">
+     <!-- Modal Add Column -->
+     <div v-if="openModalAddCol" class="modal-overlay">
       <div class="modal-content">
         <h2>ADD COLUMN</h2>
         <div class="modal-body">
@@ -73,6 +163,7 @@
         </div>
       </div>
     </div>
+    
 
   <router-view/>
 </template>
@@ -96,15 +187,30 @@ interface Column {
 
 }
 
-// State สำหรับเก็บข้อมูล column
+// เก็บข้อมูล column
 const columns = ref<Column[]>([
-  { id: 1, name: 'To Do', color: '#f5f5f5', tasks: [] },
-  { id: 2, name: 'Doing', color: '#add8e6', tasks: [] },
-  { id: 3, name: 'Done', color: '#90ee90', tasks: [] }
-]);
-
+  {
+    id: 1,
+    name: 'To Do',
+    color: '#f5f5f5',
+    tasks: [
+      {
+        id: 101,
+        title: 'List function for our website',
+        labels: ['UI'],
+        assignees: ['Gamer']
+      },
+      {
+        id: 102,
+        title: 'Design website',
+        labels: [],
+        assignees: ['Gamer']
+      }
+    ]
+  },
+  ]);
 // State สำหรับควบคุม modal
-const openModal = ref(false);
+const openModalAddCol = ref(false);
 // State สำหรับเก็บชื่อคอลัมน์ใหม่
 const colName = ref('');
 // State สำหรับเก็บสีคอลัมน์ใหม่
@@ -112,7 +218,7 @@ const colColor = ref('#ffffff');
 
 // ฟังก์ชันปิด Modal
 const closeModal = () => {
-  openModal.value = false;
+  openModalAddCol.value = false;
   colName.value = ''; // เคลียร์ค่าชื่อคอลัมน์
   colColor.value = '#ffffff';
 };
@@ -251,42 +357,69 @@ const saveTitle = () => {
   margin-right: 50px;
 }
 
+/*btn*/
+
+.ADDTASKBTN{
+  cursor: pointer;
+  border-radius: 45px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+  background-color: #F61010;
+  padding: 1px 20px;
+  height: 70px;
+  width: 200px;
+  margin: 0px;
+}
+
+.ADDCOL{
+  z-index: -1;
+  border-radius: 8px;
+  width: 150px;
+  max-width: 90%;
+  height: 100vh;
+  bottom: 0;
+  padding: 0px;
+}
+
 .NEWCOLUMN {
   cursor: pointer;
   border-radius: 45px;
   letter-spacing: 1px;
-  font-size: 24px;
-  font-family: Prompt, Bold;
+  font-size: 15px;
+  font-weight: bold;
   color: #FFFFFF;
   background-color: #F61010;
   padding: 1px 20px;
-  height: 80px;
+  height: 70px;
   width: 200px;
-  margin: 0px;
+  align-items: end;
 }
+
 /*Column*/
 
 .columns-container {
   display: flex;
   gap: 50px;
   margin-top: 50px;
-  margin-left: 50px;
+  margin-left: 70px;
+  align-items: stretch;
 }
 .column {
+  font-weight: bold;
   background: #ddd;
+  color: #FFFFFF;
+  min-height: 100px;
+  flex-direction: column;
+  min-height: 500px;
   padding: 10px;
-  min-width: 200px;
+  width: 400px;
+  height: auto ;
+  min-height: auto;
   border-radius: 5px;
 }
-.add-task-btn {
-  margin-top: 10px;
-  background: #f61010;
-  color: white;
-  padding: 5px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
+
 .task {
   background: white;
   padding: 5px;
@@ -296,6 +429,7 @@ const saveTitle = () => {
 
 /* Modal */
 .modal-overlay {
+  z-index: 1001;
   position: fixed;
   top: 0;
   left: 0;
