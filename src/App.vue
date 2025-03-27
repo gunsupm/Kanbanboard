@@ -12,18 +12,55 @@
     </div>
   </div>
   <div class="content">
-  <div class="title"><H1>Title</H1></div>
-  <button class="editred" onclick="" ><img src="../pic/editredicon.png" ></button> 
-  <button class="NEWTASK" onclick="" >NEW TASK</button>
+    <div class="title">
+      <h1 v-if="!isEditing">{{ titleText[0].name }}</h1> 
+      <input type="text" maxlength="9"  v-else v-model="newTitle" @keyup.enter="saveTitle"@blur="saveTitle"/>
+      </div>
+    <button class="editred" @click="toggleEdit">
+      <img src="../pic/editredicon.png" />
+    </button>
+    <button class="NEWTASK">NEW TASK</button>
+  </div>
+  <div class="column">
+    <h1> To Do</h1>
+  </div>
 
-
-</div>
   <router-view/>
 </template>
+
 <script>
 import { defineComponent } from 'vue';
 export default defineComponent({
+  data() {
+    return {
+      isEditing: false,
+      titleText: [{ name: 'Todo' }],
+      newTitle: '',
+    };
+  },
+  methods: {
+    toggleEdit() {
+      this.isEditing = !this.isEditing;
+      if (this.isEditing) {
+        this.newTitle = this.titleText[0].name; 
+      }
+    },
+    saveTitle() {
+  if (this.newTitle.length < 1){
+    return this.titleText[0].name = 'Name..'
 
+  }
+
+  this.titleText[0].name = this.newTitle;
+   this.isEditing = false;
+}
+
+addTask(){
+
+}
+
+
+  }
 });
 </script>
 
@@ -35,14 +72,15 @@ export default defineComponent({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  justify-content: center;
 }
 
 /*Nav Bar*/ 
 .nav-bar {
   position: fixed;
-	z-index: 1000;
+  z-index: 1000;
   left: 0;
-	top: 0;
+  top: 0;
   width: 100%;
   height: 80px;
   display: flex;
@@ -51,7 +89,6 @@ export default defineComponent({
   padding: 15px 20px;
   background-color: #F5F5F5;
 }
-
 
 .left-content h1 {
   color: #F60000;
@@ -63,24 +100,42 @@ export default defineComponent({
   height: auto;
   margin-right: 60px;
 }
+
 /*Content*/ 
 .content {
   display: flex;
   margin-top: 150px; 
   margin-left: 120px;
-  
 }
+
 .title {
-font-size: 24px;
-align-items: center;
-height: 100px;
-font-family: Prompt,Bold;
-display: inline-flex;
-border: 3px solid #000000;
-padding: 0.1px 40px;
-margin: 0px;
-margin-right: 50px;
+  font-size: 18px;
+  align-items: center;
+  font-family: Prompt, Bold;
+  display: inline-flex;
+  border: 3px solid #000000;
+  padding: 10px 40px;
+  margin: 0px;
+  margin-right: 50px;
+  justify-content: center;
+  width: 200px;
+  height: 70px;
 }
+
+.title input {
+  font-size: 36px; /* ขนาดตัวอักษร */
+  color: #F60000;
+  background-color: #f8f8f8;
+  font-family: Prompt, sans-serif; /* ฟอนต์ที่ใช้ */
+  font-weight: bold; /* น้ำหนักตัวอักษร */
+  border: 0 ; /* ขอบของ input */
+  padding: 10px 40px; /* ระยะห่างภายใน */
+  margin: 0px;
+  width: 200px;
+  height: 70px;
+  text-align: center; /* จัดข้อความให้อยู่กลาง */
+}
+
 .editred {
   background-color: white;
   cursor: pointer;
@@ -88,16 +143,17 @@ margin-right: 50px;
   margin-top: 20px;
   margin-right: 50px;
 }
-.NEWTASK{
+
+.NEWTASK {
   cursor: pointer;
   border-radius: 45px;
   letter-spacing: 1px;
   font-size: 24px;
-  font-family: Prompt,Bold;
+  font-family: Prompt, Bold;
   color: #FFFFFF;
   background-color: #F61010;
   padding: 1px 20px;
-  height: 100px;
+  height: 80px;
   width: 200px;
   margin: 0px;
 }
