@@ -7,9 +7,10 @@
         <h1>KanBan Board</h1>
       </div>
       <div class="right-content">
-        <router-link to="/login" class="user-icon">
+        <router-link to="/login" class="user-icon" >
           <img src="../pic/UserIcon.png" alt="User Icon">
         </router-link> 
+        
       </div>
     </div>
   </div>
@@ -108,38 +109,32 @@
   tag="div"
   class="columns-container"
 >
-  <template #item="{ element, index }">
+  <template #item="{ element }">
     <div class="column" :style="{ backgroundColor: element.color }">
       <h2>{{ element.name }}</h2>
+      
       <!-- Draggable สำหรับ Tasks ในแต่ละ Column -->
       <Draggable
-      v-model="element.tasks"
-      group="tasks"
-      item-key="id"
-      options="{ dropOnEmpty: true }"
-      @end="onTaskReorder"
-      tag="div"
-      class="task-container"
+        v-model="element.tasks"
+        group="tasks"
+        item-key="id"
+        :options="{ dropOnEmpty: true }"
+        @end="onTaskReorder"
+        tag="div"
+        class="task-container"
       >
         <template #item="{ element: task }">
           <div class="task">
             <p class="task-name">{{ task.title }}</p>
+            
             <div class="tag-container">
-              <span
-                v-for="(tag, idx) in task.labels"
-                :key="idx"
-                class="tag"
-              >
+              <span v-for="(tag, idx) in task.labels" :key="idx" class="tag">
                 {{ tag }}
               </span>
             </div>
-           
+
             <div class="member-container">
-              <span
-                v-for="(member, idx) in task.assignees"
-                :key="idx"
-                class="member"
-              >
+              <span v-for="(member, idx) in task.assignees" :key="idx" class="member">
                 @{{ member }}
               </span>
             </div>
@@ -173,7 +168,7 @@
           <input
             id="colColor"
             v-model="colColor"
-            placeholder="Column Color(ex.#ffffff)..."
+            placeholder=""
             type="color"
           />
         </div>
@@ -186,17 +181,12 @@
   </div>
 
 
-  
-
-
   <router-view/>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import Draggable from 'vuedraggable';
-
-
 //สร้าง interface task and column
 interface Task {
   id: number;
@@ -218,7 +208,7 @@ const columns = ref<Column[]>([
 {
     id: 1,
     name: 'To Do',
-    color: '#blue',
+    color: '#ff0965',
     tasks: [
       {
         id: 101,
@@ -262,12 +252,12 @@ const columns = ref<Column[]>([
   }
 ]);
 
-// Event handler สำหรับการลาก Task
+// Event  drag Task
 const onTaskReorder = (event: any) => {
   console.log('Task reordered or moved:', event);
 };
 
-// Event handler สำหรับการลาก Column
+// Event  drag Column
 const onColumnsReorder = (event: any) => {
   console.log('Columns reordered:', event);
 };
@@ -349,12 +339,12 @@ const confirmAddTask = () => {
   closeTaskModal();
 };
 
-// State สำหรับควบคุม modalColumn
+// State ควบคุม modalAddColumn
 const openModalAddCol = ref(false);
-// State สำหรับเก็บชื่อคอลัมน์ใหม่
+// State ก็บชื่อคอลัมน์ใหม่
 const colName = ref('');
-// State สำหรับเก็บสีคอลัมน์ใหม่
-const colColor = ref('#ffffff');
+// State เก็บสีคอลัมน์ใหม่
+const colColor = ref('#000000');
 
 // ฟังก์ชันปิด Modal
 const closeModal = () => {
@@ -570,12 +560,18 @@ const saveTitle = () => {
   border-radius: 3px;
   text-align: left;
 }
+.task-container {
+  min-height: 150px; 
+  border: 3px dashed #f1f1f1; 
+  padding: 10px;
+}
+
 .task-name {
   font-weight: bold;
   color: #000000;
   margin-left: 10px;
 }
-.tag-container,
+.tag-container
 .member-container {
   margin-top: 5px;
 min-height: 50px; 
