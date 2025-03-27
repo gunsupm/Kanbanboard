@@ -56,7 +56,7 @@
               placeholder="name..."
               type="text"
             />
-            <button @click="addTag">Add New Tag</button>
+            <button @click="addTag">ADD TAG</button>
           </div>
           <!-- แสดงรายการ Tag ที่ผู้ใช้เพิ่ม -->
           <div class="tag-list">
@@ -77,7 +77,7 @@
               placeholder="@..."
               type="text"
             />
-            <button @click="addMember">Add New Member</button>
+            <button @click="addMember">ADD MEMBER</button>
           </div>
           <!-- แสดงรายการ Member ที่ผู้ใช้เพิ่ม -->
           <div class="member-list">
@@ -139,6 +139,7 @@
       <button class="NEWCOLUMN" @click="openModalAddCol = true">ADD COLUMN</button></div>
     </div>
      <!-- Modal Add Column -->
+    <div id="Column">
      <div v-if="openModalAddCol" class="modal-overlay">
       <div class="modal-content">
         <h2>ADD COLUMN</h2>
@@ -165,6 +166,7 @@
         </div>
       </div>
     </div>
+  </div>
     
 
   <router-view/>
@@ -564,8 +566,8 @@ const saveTitle = () => {
   gap: 5px;
 }
 
-/* Modal */
-.modal-overlay {
+/* Modal Column */
+#Column .modal-overlay {
   z-index: 1001;
   position: fixed;
   top: 0;
@@ -578,7 +580,7 @@ const saveTitle = () => {
   justify-content: center;
 }
 
-.modal-content {
+#Column .modal-content {
   background: #fff;
   border-radius: 8px;
   border: 3px solid #000000;
@@ -589,19 +591,19 @@ const saveTitle = () => {
   text-align: left;
   font-size: 28px;
 }
-.modal-content h2 {
+#Column .modal-content h2 {
   margin: 20px 0 10px 30px;
 }
-.modal-body {
+#Column .modal-body {
   margin-bottom: 20px;
 }
-.modal-body label {
+#Column .modal-body label {
   margin: 30px 0 10px 30px;
   font-size: 25px;
   display: block;
   font-weight: bold;
 }
-.modal-body input[type="text"] {
+#Column .modal-body input[type="text"] {
   margin-left: 50px;
   font-size: 20px;
   width: 300px;
@@ -610,7 +612,7 @@ const saveTitle = () => {
   box-sizing: border-box;
   margin-bottom: 10px;
 }
-.modal-body input[type="color"] {
+#Column .modal-body input[type="color"] {
   border: 5px solid #000000;
   margin-top: 20px;
   margin-left: 50px;
@@ -621,10 +623,10 @@ const saveTitle = () => {
   cursor: pointer;
 }
 
-.modal-footer {
+#Column .modal-footer {
   text-align: right;
 }
-.modal-footer button {
+#Column .modal-footer button {
   margin-top: 50px;
   margin-left: 10px;
   padding: 8px 16px;
@@ -637,39 +639,41 @@ const saveTitle = () => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* พื้นหลังโปร่งแสงสีดำ */
+  background-color: rgba(0, 0, 0, 0.5); 
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* ทำให้ Modal อยู่ด้านบนสุด */
+  text-align: left;
+  z-index: 1000; 
 }
 
 #Task .modal-content {
   background: #fff;
   border-radius: 8px;
-  width: 500px;
+  border: 3px solid #000000;
+  width: 400px;
   max-width: 90%;
+  height: 800px;
   padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* เงาเบาๆ */
+  text-align: left;
+  font-size: 28px;
 }
 #Task .modal-content h2 {
-  margin-top: 0;
-  font-size: 24px;
-  color: #333;
+  margin: 20px 0 10px 30px;
 }
 #Task .modal-body {
   margin-bottom: 20px;
 }
 #Task .modal-body label {
+  margin: 30px 0 10px 30px;
+  font-size: 25px;
   display: block;
-  margin-bottom: 5px;
   font-weight: bold;
-  color: #555;
 }
 
 #Task .modal-body input[type="text"],
 .modal-body select {
-  width: calc(100% - 22px); /* ปรับขนาดให้พอดีกับ padding */
+  width: calc(100% - 22px); 
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
@@ -683,6 +687,7 @@ const saveTitle = () => {
 #Task .tag-input-area,
 .member-input-area {
   display: flex;
+  
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -690,18 +695,34 @@ const saveTitle = () => {
 .member-input-area input {
   flex: 1;
 }
-#Task .tag-input-area button,
+#Task .tag-input-area button {
+  padding: 10px 15px;
+  background-color: #F61010; 
+  color: #fff;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+}
 .member-input-area button {
   padding: 10px 15px;
   background-color: #007bff; /* สีฟ้า */
   color: #fff;
   border: none;
   border-radius: 4px;
+  padding: 10px 15px;
+  background-color: #F61010; 
+  color: #fff;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
   cursor: pointer;
+
 }
 #Task .tag-input-area button:hover,
 .member-input-area button:hover {
-  background-color: #0056b3; /* สีฟ้าเข้มขึ้นเมื่อ hover */
+  background-color: white; 
+  color: #F61010;
 }
 #Task .tag-list,
 .member-list {
@@ -716,7 +737,7 @@ const saveTitle = () => {
   color: #333;
   padding: 5px 10px;
   border-radius: 15px;
-  font-size: 14px;
+  font-size: 20px;
 }
 #Task .modal-footer {
   display: flex;
@@ -724,24 +745,45 @@ const saveTitle = () => {
   gap: 10px;
 }
 #Task .modal-footer button {
+  margin-top: 30px;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 #Task .modal-footer button:first-child {
-  background-color: #28a745; /* สีเขียว */
+  background-color: #28a745; 
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
   color: #fff;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 10px 15px;
+  width: 100px;
 }
 #Task .modal-footer button:first-child:hover {
-  background-color: #218838; /* สีเขียวเข้มขึ้นเมื่อ hover */
+  color: #28a745;
+  background-color: #ffffff;
 }
 #Task .modal-footer button:last-child {
-  background-color: #dc3545; /* สีแดง */
+  background-color: #dc3545; 
   color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 10px 15px;
+  width: 100px;
 }
 #Task .modal-footer button:last-child:hover {
-  background-color: #c82333; /* สีแดงเข้มขึ้นเมื่อ hover */
+  color: #c82333; 
+  background-color: #ffffff;
 }
 
 </style>
