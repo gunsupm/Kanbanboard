@@ -24,7 +24,7 @@ cd kanban-board-vue3-ts
 ```bash
 Npm install
 
-#Then
+### Then
 
 ```bash
 Npm run serve
