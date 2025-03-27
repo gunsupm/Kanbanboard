@@ -19,11 +19,11 @@ View the full Figma Design [here](https://www.figma.com/design/34dyAX3tRuzPpLmg0
 
 To get started with this project, follow these steps:
 
-### 1. Clone the repository
+### 1. Clone the repository Or download all file 
 
 ```bash
-git clone https://github.com/yourusername/kanban-board-vue3-ts.git
-cd kanban-board-vue3-ts
+git clone https://github.com/gunsupm/Kanbanboard
+cd Kanbanboard
 ```
 ### 2. Run This
 
