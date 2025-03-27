@@ -13,7 +13,9 @@
   </div>
   <div class="content">
   <div class="title"><H1>Title</H1></div>
-  <div class="editred"><button onclick="" ><img src="../pic/editredicon.png" alt=""></button></div>
+  <button class="editred" onclick="" ><img src="../pic/editredicon.png" ></button> 
+  <button class="NEWTASK" onclick="" >NEW TASK</button>
+
 
 </div>
   <router-view/>
@@ -28,6 +30,7 @@ export default defineComponent({
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 #app {
+  text-align: center;
   font-family: Prompt;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -68,18 +71,34 @@ export default defineComponent({
   
 }
 .title {
+font-size: 24px;
+align-items: center;
+height: 100px;
 font-family: Prompt,Bold;
 display: inline-flex;
 border: 3px solid #000000;
-padding: 5px 50px;
+padding: 0.1px 40px;
 margin: 0px;
 margin-right: 50px;
 }
-.editred button{
+.editred {
   background-color: white;
   cursor: pointer;
   border: 0px;  
   margin-top: 20px;
+  margin-right: 50px;
 }
-
+.NEWTASK{
+  cursor: pointer;
+  border-radius: 45px;
+  letter-spacing: 1px;
+  font-size: 24px;
+  font-family: Prompt,Bold;
+  color: #FFFFFF;
+  background-color: #F61010;
+  padding: 1px 20px;
+  height: 100px;
+  width: 200px;
+  margin: 0px;
+}
 </style>
