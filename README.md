@@ -1,5 +1,5 @@
 # Kanban Board - Vue 
-This is a simple Kanban board application built with Vue 3, TypeScript, and Vue Router. It allows you to manage tasks in different columns (To Do, In Progress, Done) with drag-and-drop functionality.
+This is a simple Kanban board built with Vue 3,and Vue Router. It allows you to manage tasks in different columns (To Do, In Progress, Done) with drag-and-drop functionality.
 
 # Figma 
 
