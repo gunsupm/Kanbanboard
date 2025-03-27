@@ -13,7 +13,7 @@
   </div>
   <div class="content">
   <div class="title"><H1>Title</H1></div>
-  <div class="editred"><img src="../pic/editredicon.png" alt=""></div>
+  <div class="editred"><button onclick="" ><img src="../pic/editredicon.png" alt=""></button></div>
 
 </div>
   <router-view/>
@@ -75,8 +75,10 @@ padding: 5px 50px;
 margin: 0px;
 margin-right: 50px;
 }
-.editred{
-
+.editred button{
+  background-color: white;
+  cursor: pointer;
+  border: 0px;  
   margin-top: 20px;
 }
 
