@@ -1,4 +1,6 @@
 <template>
+  class="columns-container"
+  
   <div class="header">
     <div class="nav-bar">
       <div class="left-content">
@@ -98,46 +100,54 @@
     </div>
   </div>
 
-  <!-- Columns -->
-  <div class="columns-container">
+  <Draggable
+  v-model="columns"
+  group="columns"
+  item-key="id"
+  @end="onColumnsReorder"
+  tag="div"
+  class="columns-container"
+>
+  <!-- Slot สำหรับ item -->
+  <template #item="{ element, index }">
+    <div class="column" :style="{ backgroundColor: element.color }">
+      <h2>{{ element.name }}</h2>
       <div
-        v-for="column in columns"
-        :key="column.id"
-        class="column"
-        :style="{ backgroundColor: column.color }"
+        v-for="task in element.tasks"
+        :key="task.id"
+        class="task"
       >
-        <h2>{{ column.name }}</h2>
-        <div
-          v-for="task in column.tasks"
-          :key="task.id"
-          class="task"
-        >
-          <p class="task-name">{{ task.title }}</p>
-          <!-- แสดง Tags -->
-          <div class="tag-container">
-            <span
-              v-for="(tag, idx) in task.labels"
-              :key="idx"
-              class="tag"
-            >
-              #{{ tag }}
-            </span>
-          </div>
-          <!-- แสดง Members -->
-          <div class="member-container">
-            <span
-              v-for="(member, idx) in task.assignees"
-              :key="idx"
-              class="member"
-            >
-              @{{ member }}
-            </span>
-          </div>
+        <p class="task-name">{{ task.title }}</p>
+        <!-- แสดง Tags -->
+        <div class="tag-container">
+          <span
+            v-for="(tag, idx) in task.labels"
+            :key="idx"
+            class="tag"
+          >
+            #{{ tag }}
+          </span>
+        </div>
+        <!-- แสดง Members -->
+        <div class="member-container">
+          <span
+            v-for="(member, idx) in task.assignees"
+            :key="idx"
+            class="member"
+          >
+            @{{ member }}
+          </span>
         </div>
       </div>
-      <div class="ADDCOL">
-      <button class="NEWCOLUMN" @click="openModalAddCol = true">ADD COLUMN</button></div>
     </div>
+  </template>
+</Draggable>
+
+<div class="ADDCOL">
+    <button class="NEWCOLUMN" @click="openModalAddCol = true">ADD COLUMN</button>
+  </div>
+  
+
      <!-- Modal Add Column -->
     <div id="Column">
      <div v-if="openModalAddCol" class="modal-overlay">
@@ -160,20 +170,25 @@
             type="color"
           />
         </div>
-        <div class="modal-footer">
-          <button @click="confirmAddColumn">Done</button>
-          <button @click="closeModal">Cancel</button>
+        <div class="modal-footerbtn">
+          <button class="Done" @click="confirmAddColumn">Done</button>
+          <button class="Cancle" @click="closeModal">Cancel</button>
         </div>
       </div>
     </div>
   </div>
-    
+
+
+  
+
 
   <router-view/>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import Draggable from 'vuedraggable';
+
 
 //สร้าง interface task and column
 interface Task {
@@ -196,7 +211,7 @@ const columns = ref<Column[]>([
 {
     id: 1,
     name: 'To Do',
-    color: '#f5f5f5',
+    color: '#blue',
     tasks: [
       {
         id: 101,
@@ -239,6 +254,17 @@ const columns = ref<Column[]>([
     ]
   }
 ]);
+
+// Event handler สำหรับการลาก Task
+const onTaskReorder = (event: any) => {
+  console.log('Task reordered or moved:', event);
+};
+
+// Event handler สำหรับการลาก Column
+const onColumnsReorder = (event: any) => {
+  console.log('Columns reordered:', event);
+};
+
 
 //-Modal Task-//
 const openTaskModal = ref(false);
@@ -480,14 +506,17 @@ const saveTitle = () => {
   margin: 0px;
 }
 
-.ADDCOL{
+.ADDCOL {
   border-radius: 8px;
   width: 150px;
   max-width: 90%;
   height: 100vh;
   bottom: 0;
-  padding: 0px;
+  padding: 0;
+  margin-top: 30px;
+  margin-left: 1500px;
 }
+
 
 .NEWCOLUMN {
   cursor: pointer;
@@ -623,14 +652,49 @@ const saveTitle = () => {
   cursor: pointer;
 }
 
-#Column .modal-footer {
+#Column .modal-footerbtn {
   text-align: right;
 }
-#Column .modal-footer button {
+#Column .modal-footerbtn button {
   margin-top: 50px;
   margin-left: 10px;
   padding: 8px 16px;
   cursor: pointer;
+}
+#Column .Done{
+  background-color: #28a745; 
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  color: #fff;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 10px 15px;
+  width: 100px;
+  cursor: pointer;
+}
+#Column .Done:hover{
+  background-color: #ffffff;
+  color: #28a745;
+}
+#Column .Cancle{
+  background-color: #F60000; 
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  color: #fff;
+  border: 2px solid black;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 10px 15px;
+  width: 100px;
+  cursor: pointer;
+}
+
+#Column .Cancle:hover{
+  color: #ffffff;
+  background-color: #F60000; 
 }
 
 #Task .modal-overlay {
@@ -646,7 +710,6 @@ const saveTitle = () => {
   text-align: left;
   z-index: 1000; 
 }
-
 #Task .modal-content {
   background: #fff;
   border-radius: 8px;
