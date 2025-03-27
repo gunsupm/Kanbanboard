@@ -12,7 +12,7 @@ View the full Figma Design [here](https://www.figma.com/design/34dyAX3tRuzPpLmg0
 - Drag and drop tasks between columns
 - Add, edit, and delete tasks
 - Persistent storage using localStorage (or integrate with a backend if needed)
-- 
+  
 ## Project Setup
 
 To get started with this project, follow these steps:
