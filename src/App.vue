@@ -19,49 +19,142 @@
     <button class="editred" @click="toggleEdit">
       <img src="../pic/editredicon.png" />
     </button>
-    <button class="NEWTASK">NEW TASK</button>
+    <button class="NEWCOLUMN" @click="openModal = true">ADD COLUMN</button>
   </div>
-  <div class="column">
-    <h1> To Do</h1>
-  </div>
+
+  <!-- Columns -->
+  <div class="columns-container">
+      <div
+        v-for="column in columns"
+        :key="column.id"
+        class="column"
+      >
+        <h2>{{ column.name }}</h2>
+        <button class="add-task-btn" @click="addTask(column.id)">
+          NEW TASK
+        </button>
+        
+        <div
+          v-for="task in column.tasks"
+          :key="task.id"
+          class="task"
+        >
+          <p>{{ task.title }}</p>
+
+        </div>
+      </div>
+    </div>
+
+     <!-- Modal สำหรับ Add Column -->
+     <div v-if="openModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>ADD COLUMN</h2>
+        <div class="modal-body">
+          <label for="colName">Column Name</label>
+          <input
+            id="colName"
+            v-model="colName"
+            placeholder="Column name..."
+            type="text"
+          />
+        </div>
+        <div class="modal-footer">
+          <button @click="confirmAddColumn">Done</button>
+          <button @click="closeModal">Cancel</button>
+        </div>
+      </div>
+    </div>
 
   <router-view/>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
-export default defineComponent({
-  data() {
-    return {
-      isEditing: false,
-      titleText: [{ name: 'Todo' }],
-      newTitle: '',
-    };
-  },
-  methods: {
-    toggleEdit() {
-      this.isEditing = !this.isEditing;
-      if (this.isEditing) {
-        this.newTitle = this.titleText[0].name; 
-      }
-    },
-    saveTitle() {
-  if (this.newTitle.length < 1){
-    return this.titleText[0].name = 'Name..'
+<script setup lang="ts">
+import { ref } from 'vue';
 
-  }
-
-  this.titleText[0].name = this.newTitle;
-   this.isEditing = false;
+//สร้าง interface task and column
+interface Task {
+  id: number;
+  title: string;
+  labels: string[];
+  assignees: string[];
 }
 
-addTask(){
-
+interface Column {
+  id: number;
+  name: string;
+  tasks: Task[];
 }
 
+// State สำหรับเก็บข้อมูล column
+const columns = ref<Column[]>([
+  { id: 1, name: 'To Do', tasks: [] },
+  { id: 2, name: 'Doing', tasks: [] },
+  { id: 3, name: 'Done', tasks: [] }
+]);
 
+// State สำหรับควบคุม modal
+const openModal = ref(false);
+// State สำหรับเก็บชื่อคอลัมน์ใหม่
+const colName = ref('');
+
+// ฟังก์ชันปิด Modal
+const closeModal = () => {
+  openModal.value = false;
+  colName.value = ''; // เคลียร์ค่าชื่อคอลัมน์
+};
+
+// ฟังก์ชันสร้างคอลัมน์ใหม่
+const confirmAddColumn = () => {
+  if (!colName.value.trim()) {
+    alert('Please enter column name');
+    return;
   }
-});
+
+  columns.value.push({
+    id: Date.now(),  // ใช้ timestamp หรือ uuid ก็ได้
+    name: colName.value,
+    tasks: []
+  });
+
+  closeModal();
+};
+
+// add task in column fuction
+// ฟังก์ชันเพิ่ม Task ลงในคอลัมน์
+const addTask = (columnId: number) => {
+  const column = columns.value.find((col) => col.id === columnId);
+  if (!column) return;
+
+  column.tasks.push({
+    id: Date.now(),
+    title: `New Task ${column.tasks.length + 1}`,
+    labels: [],
+    assignees: []
+  });
+};
+// สร้าง reactive state ด้วย ref
+const isEditing = ref(false);
+const titleText = ref([{ name: 'Todo' }]);
+const newTitle = ref('');
+
+
+// ฟังก์ชัน toggleEdit
+const toggleEdit = () => {
+  isEditing.value = !isEditing.value;
+  if (isEditing.value) {
+    newTitle.value = titleText.value[0].name;
+  }
+};
+
+// ฟังก์ชัน saveTitle
+const saveTitle = () => {
+  if (newTitle.value.trim().length === 0) {
+    titleText.value[0].name = 'Name..';
+  } else {
+    titleText.value[0].name = newTitle.value;
+  }
+  isEditing.value = false;
+};
 </script>
 
 <style>
@@ -144,7 +237,7 @@ addTask(){
   margin-right: 50px;
 }
 
-.NEWTASK {
+.NEWCOLUMN {
   cursor: pointer;
   border-radius: 45px;
   letter-spacing: 1px;
@@ -157,4 +250,83 @@ addTask(){
   width: 200px;
   margin: 0px;
 }
+/*Column*/
+
+.columns-container {
+  display: flex;
+  gap: 50px;
+  margin-top: 50px;
+  margin-left: 50px;
+}
+.column {
+  background: #ddd;
+  padding: 10px;
+  min-width: 200px;
+  border-radius: 5px;
+}
+.add-task-btn {
+  margin-top: 10px;
+  background: #f61010;
+  color: white;
+  padding: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.task {
+  background: white;
+  padding: 5px;
+  margin-top: 5px;
+  border-radius: 3px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.089); /* ความโปร่งของฉากหลัง */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  border: 3px solid #000000;
+  width: 400px;
+  max-width: 90%;
+  padding: 20px;
+  text-align: left;
+}
+.modal-content h2 {
+  margin: 0 0 10px 0;
+}
+.modal-body {
+  margin-bottom: 20px;
+}
+.modal-body label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.modal-body input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  text-align: right;
+}
+.modal-footer button {
+  margin-left: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+
 </style>
