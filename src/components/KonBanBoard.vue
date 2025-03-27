@@ -118,9 +118,9 @@
         <!-- Dropdown Menu for Column -->
         <div v-if="menuOpenColumnId === element.id"  class="column-menu-dropdown">
           <button class="EditCL" @click="openEditColumnModal(element)">Edit</button>
-          <br>
+        <br>
           <button class="DelCL" @click="deleteColumn(element)">Delete</button>
-        </div>
+      </div>
       </div>
       <!-- Draggable for Tasks in Column -->
       <Draggable
@@ -137,8 +137,8 @@
             <div class="task-header">
               <p class="task-name">{{ task.title }}</p>
               <div class="task-actions">
-                <span class="edit-task" @click="editTask(task, element)">✏️</span>
-                <span class="delete-task" @click="deleteTask(task, element)">🗑️</span>
+              <span class="edit-task" @click="openEditTaskModal(task, element)">✏️</span>
+
               </div>
             </div>
             <div class="tag-container">
@@ -165,23 +165,101 @@
 
     
    <!-- Modal Edit Column -->
-  <div id="EditColumn">
-    <div v-if="openEditColumnModalFlag" class="modal-overlay">
-      <div class="modal-content">
-        <h2>EDIT COLUMN</h2>
-        <div class="modal-body">
-          <label for="editColName">Column Name</label>
-          <input id="editColName" v-model="editColumnData.name" type="text" placeholder="Column name..." />
-          <label for="editColColor">Column Color</label>
-          <input id="editColColor" v-model="editColumnData.color" type="color" />
-        </div>
-        <div class="modal-footerbtn">
-          <button class="Done" @click="updateColumn">Done</button>
-          <button class="Cancle" @click="closeEditColumnModal">Cancel</button>
-        </div>
+<div id="EditColumn">
+  <div v-if="openEditColumnModalFlag" class="modal-overlay">
+    <div class="modal-content">
+      <h2>EDIT COLUMN</h2>
+      <div class="modal-body">
+        <label for="editColName">Column Name</label>
+        <input id="editColName" v-model="editColumnData.name" type="text" placeholder="Column name..." />
+        <label for="editColColor">Column Color</label>
+        <input id="editColColor" v-model="editColumnData.color" type="color" />
+      </div>
+      <div class="modal-footerbtn">
+        <button class="Done" @click="updateColumn">Done</button>
+        <button class="Cancle" @click="closeEditColumnModal">Cancel</button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Modal Edit Task -->
+<div id="EditTask">
+  <div v-if="openEditTaskModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>EDIT TASK</h2>
+      <div class="modal-body">
+        <!-- เลือก Column (ถ้าต้องการให้สามารถเปลี่ยน column ได้) -->
+        <label>Choose Column</label>
+        <select v-model="selectedEditTaskColumnId">
+          <option disabled value="">Select column...</option>
+          <option
+            v-for="column in columns"
+            :key="column.id"
+            :value="column.id"
+          >
+            {{ column.name }}
+          </option>
+        </select>
+
+        <!-- Task Name -->
+        <label>Task name</label>
+        <input
+          v-model="editTaskName"
+          placeholder="Task name..."
+          type="text"
+        />
+
+        <!-- Tag -->
+        <label>Tag</label>
+        <div class="tag-input-area">
+          <input
+            v-model="editTagInput"
+            placeholder="name..."
+            type="text"
+          />
+          <button @click="addEditTag">ADD TAG</button>
+        </div>
+        <!-- แสดงรายการ Tag ที่ผู้ใช้แก้ไข -->
+        <div class="tag-list">
+          <span
+            v-for="(tag, idx) in editTags"
+            :key="idx"
+            class="tag"
+          >
+            #{{ tag }}
+          </span>
+        </div>
+
+        <!-- Member -->
+        <label>Member</label>
+        <div class="member-input-area">
+          <input
+            v-model="editMemberInput"
+            placeholder="@..."
+            type="text"
+          />
+          <button @click="addEditMember">ADD MEMBER</button>
+        </div>
+        <!-- แสดงรายการ Member ที่ผู้ใช้แก้ไข -->
+        <div class="member-list">
+          <span
+            v-for="(member, idx) in editMembers"
+            :key="idx"
+            class="member"
+          >
+            @{{ member }}
+          </span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button @click="updateTask">Done</button>
+        <button @click="closeEditTaskModal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
        <!-- Modal Add Column -->
       <div id="Column">
@@ -213,19 +291,14 @@
       </div>
     </div>
   
-  
     <router-view/>
   </template>
   
   <script setup lang="ts">
-    import { ref, watch, onMounted } from 'vue';
-    import { useRoute } from 'vue-router';
-    import Draggable from 'vuedraggable';
-    import { useRouter } from 'vue-router'
+  import { ref, watch, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import Draggable from 'vuedraggable';
   
-    const router = useRouter();
-    const route = useRoute()
-  //สร้าง interface task and column
   interface Task {
     id: number;
     title: string;
@@ -236,106 +309,97 @@
   interface Column {
     id: number;
     name: string;
-    color: string; 
+    color: string;
     tasks: Task[];
-  
   }
   
-  // load column in Local
+  // ---------------------
+  // Load & Save Columns
+  // ---------------------
   const columns = ref<Column[]>([]);
-onMounted(() => {
-  const storedColumns = localStorage.getItem('kanbanColumns');
-  if (storedColumns) {
-    columns.value = JSON.parse(storedColumns);
-  } else {
-    // if Don't Have Data
-    columns.value = [
-      {
-        id: 1,
-        name: 'To Do',
-        color: '#7D74FF',
-        tasks: [
-          {
-            id: 101,
-            title: 'List function for our website',
-            labels: ['UX'],
-            assignees: ['James','Game']
-          },
-          {
-            id: 102,
-            title: 'Design website',
-            labels: ['Ui'],
-            assignees: ['Gunner']
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Doing',
-        color: '#00B2FF',
-        tasks: [
-          {
-            id: 201,
-            title: 'Create Kanban website',
-            labels: ['Main'],
-            assignees: ['All']
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: 'Done',
-        color: '#16A816',
-        tasks: [
-          {
-            id: 301,
-            title: 'Dealing with clients',
-            labels: ['Deal','Cust'],
-            assignees: ['Jane','Fore']
-          }
-        ]
-      }
-    ];
-  }
-});
-
-// Save Columns to Local
-watch(
-  columns,
-  (newColumns) => {
-    localStorage.setItem('kanbanColumns', JSON.stringify(newColumns));
-  },
-  { deep: true }
-);
+  onMounted(() => {
+    const storedColumns = localStorage.getItem('kanbanColumns');
+    if (storedColumns) {
+      columns.value = JSON.parse(storedColumns);
+    } else {
+      columns.value = [
+        {
+          id: 1,
+          name: 'To Do',
+          color: '#7D74FF',
+          tasks: [
+            {
+              id: 101,
+              title: 'List function for our website',
+              labels: ['UX'],
+              assignees: ['James','Game']
+            },
+            {
+              id: 102,
+              title: 'Design website',
+              labels: ['Ui'],
+              assignees: ['Gunner']
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Doing',
+          color: '#00B2FF',
+          tasks: [
+            {
+              id: 201,
+              title: 'Create Kanban website',
+              labels: ['Main'],
+              assignees: ['All']
+            }
+          ]
+        },
+        {
+          id: 3,
+          name: 'Done',
+          color: '#16A816',
+          tasks: [
+            {
+              id: 301,
+              title: 'Dealing with clients',
+              labels: ['Deal','Cust'],
+              assignees: ['Jane','Fore']
+            }
+          ]
+        }
+      ];
+    }
+  });
   
-  // Event  drag Task
+  watch(columns, (newColumns) => {
+    localStorage.setItem('kanbanColumns', JSON.stringify(newColumns));
+  }, { deep: true });
+  
+  // ---------------------
+  // Drag Events
+  // ---------------------
   const onTaskReorder = (event: any) => {
     console.log('Task reordered or moved:', event);
   };
   
-  // Event  drag Column
   const onColumnsReorder = (event: any) => {
     console.log('Columns reordered:', event);
   };
   
-  
-  //-Modal Task-//
+  // ---------------------
+  // Modal Add Task
+  // ---------------------
   const openTaskModal = ref(false);
-  
-  // State สำหรับ Task ใหม่
-  const selectedColumnId = ref<number | ''>(''); // เก็บ id ของ Column ที่เลือก
+  const selectedColumnId = ref<number | ''>('');
   const taskName = ref('');
   const tags = ref<string[]>([]);
   const members = ref<string[]>([]);
-  
-  // ตัวแปรสำหรับเก็บ input ชั่วคราว ก่อนจะ add เข้า array
   const tagInput = ref('');
   const memberInput = ref('');
   
-  // เปิด/ปิด Modal
   const closeTaskModal = () => {
     openTaskModal.value = false;
-    // เคลียร์ฟอร์ม
     selectedColumnId.value = '';
     taskName.value = '';
     tags.value = [];
@@ -344,7 +408,6 @@ watch(
     memberInput.value = '';
   };
   
-  // เพิ่ม Tag
   const addTag = () => {
     const newTag = tagInput.value.trim();
     if (newTag) {
@@ -353,7 +416,6 @@ watch(
     }
   };
   
-  // เพิ่ม Member
   const addMember = () => {
     const newMember = memberInput.value.trim();
     if (newMember) {
@@ -362,9 +424,7 @@ watch(
     }
   };
   
-  // Confirm สร้าง Task
   const confirmAddTask = () => {
-    // ตรวจสอบว่าเลือก column, ใส่ชื่อ task หรือยัง
     if (!selectedColumnId.value) {
       alert('Please select a column');
       return;
@@ -373,78 +433,55 @@ watch(
       alert('Please enter a task name');
       return;
     }
-  
-    // หา Column ที่จะเพิ่ม Task
     const column = columns.value.find(col => col.id === selectedColumnId.value);
     if (!column) {
       alert('Column not found');
       return;
     }
-  
-    // สร้าง Task ใหม่
     const newTask: Task = {
       id: Date.now(),
       title: taskName.value,
       labels: tags.value,
       assignees: members.value
     };
-  
     column.tasks.push(newTask);
-  
-    // ปิด modal และเคลียร์ค่าต่างๆ
     closeTaskModal();
   };
   
-  // State ควบคุม modalAddColumn
+  // ---------------------
+  // Modal Add Column
+  // ---------------------
   const openModalAddCol = ref(false);
-  // State ก็บชื่อคอลัมน์ใหม่
   const colName = ref('');
-  // State เก็บสีคอลัมน์ใหม่
   const colColor = ref('#000000');
   
-  // ฟังก์ชันปิด Modal
   const closeModal = () => {
     openModalAddCol.value = false;
-    colName.value = ''; // เคลียร์ค่าชื่อคอลัมน์
+    colName.value = '';
     colColor.value = '#ffffff';
   };
   
-  // ฟังก์ชันสร้างคอลัมน์ใหม่
   const confirmAddColumn = () => {
     if (!colName.value.trim()) {
       alert('Please enter column name');
       return;
     }
-  
     columns.value.push({
-      id: Date.now(),  
+      id: Date.now(),
       name: colName.value,
       color: colColor.value,
       tasks: []
     });
-  
     closeModal();
   };
   
-  // add task in column fuction
-  const addTask = (columnId: number) => {
-    const column = columns.value.find((col) => col.id === columnId);
-    if (!column) return;
-  
-    column.tasks.push({
-      id: Date.now(),
-      title: `New Task ${column.tasks.length + 1}`,
-      labels: [],
-      assignees: []
-    });
-  };
-  // reactive by ref
+  // ---------------------
+  // Title Editing
+  // ---------------------
   const isEditing = ref(false);
   const titleText = ref([{ name: 'Todo' }]);
   const newTitle = ref('');
   
-  
-  // toggleEdit
   const toggleEdit = () => {
     isEditing.value = !isEditing.value;
     if (isEditing.value) {
@@ -452,59 +489,114 @@ watch(
     }
   };
   
-  // saveTitle
   const saveTitle = () => {
-    if (newTitle.value.trim().length === 0) {
-      titleText.value[0].name = 'Name..';
-    } else {
-      titleText.value[0].name = newTitle.value;
-    }
+    titleText.value[0].name = newTitle.value.trim() || 'Name..';
     isEditing.value = false;
   };
-
-  // --- Column Menu for Edit/Delete ---
-const menuOpenColumnId = ref<number | null>(null);
-const toggleColumnMenu = (columnId: number) => {
-  menuOpenColumnId.value = menuOpenColumnId.value === columnId ? null : columnId;
-};
-const deleteColumn = (column: Column) => {
-  if (confirm(`Delete column "${column.name}"?`)) {
-    columns.value = columns.value.filter(c => c.id !== column.id);
-  }
-};
-
-// --- Modal Edit Column State ---
-const openEditColumnModalFlag = ref(false);
-const editColumnData = ref<{ id: number; name: string; color: string }>({ id: 0, name: '', color: '' });
-const openEditColumnModal = (column: Column) => {
-  editColumnData.value = { ...column };
-  openEditColumnModalFlag.value = true;
-  menuOpenColumnId.value = null;
-};
-const closeEditColumnModal = () => {
-  openEditColumnModalFlag.value = false;
-};
-const updateColumn = () => {
-  const idx = columns.value.findIndex(c => c.id === editColumnData.value.id);
-  if (idx !== -1) {
-    columns.value[idx].name = editColumnData.value.name;
-    columns.value[idx].color = editColumnData.value.color;
-  }
-  closeEditColumnModal();
-};
-
-// --- Task Actions (Edit/Delete) ---
-// Edit Task and Delete Task can't add modal all inline
-const editTask = (task: Task, column: Column) => {
-  alert(`Edit task: ${task.title} in column: ${column.name}`);
-};
-const deleteTask = (task: Task, column: Column) => {
-  if (confirm(`Delete task "${task.title}"?`)) {
-    column.tasks = column.tasks.filter(t => t.id !== task.id);
-  }
-};
-
+  
+  // ---------------------
+  // Column Edit / Delete
+  // ---------------------
+  const menuOpenColumnId = ref<number | null>(null);
+  const toggleColumnMenu = (columnId: number) => {
+    menuOpenColumnId.value = menuOpenColumnId.value === columnId ? null : columnId;
+  };
+  
+  const deleteColumn = (column: Column) => {
+    if (confirm(`Delete column "${column.name}"?`)) {
+      columns.value = columns.value.filter(c => c.id !== column.id);
+    }
+  };
+  
+  // ---------------------
+  // Modal Edit Column
+  // ---------------------
+  const openEditColumnModalFlag = ref(false);
+  const editColumnData = ref<{ id: number; name: string; color: string }>({ id: 0, name: '', color: '' });
+  
+  const openEditColumnModal = (column: Column) => {
+    editColumnData.value = { ...column };
+    openEditColumnModalFlag.value = true;
+    menuOpenColumnId.value = null;
+  };
+  
+  const closeEditColumnModal = () => {
+    openEditColumnModalFlag.value = false;
+  };
+  
+  const updateColumn = () => {
+    const idx = columns.value.findIndex(c => c.id === editColumnData.value.id);
+    if (idx !== -1) {
+      // คงค่า tasks เดิมไว้
+      columns.value[idx] = {
+        ...columns.value[idx],
+        name: editColumnData.value.name,
+        color: editColumnData.value.color
+      };
+    }
+    closeEditColumnModal();
+  };
+  
+  // ---------------------
+  // Modal Edit Task
+  // ---------------------
+  const openEditTaskModal = ref(false);
+  const editTaskId = ref<number>(0);
+  const selectedEditTaskColumnId = ref<number | ''>('');
+  const editTaskName = ref('');
+  const editTags = ref<string[]>([]);
+  const editMembers = ref<string[]>([]);
+  const editTagInput = ref('');
+  const editMemberInput = ref('');
+  
+  const openEditTaskModalFunc = (task: Task, column: Column) => {
+    editTaskId.value = task.id;
+    selectedEditTaskColumnId.value = column.id;
+    editTaskName.value = task.title;
+    editTags.value = [...task.labels];
+    editMembers.value = [...task.assignees];
+    openEditTaskModal.value = true;
+  };
+  
+  const addEditTag = () => {
+    const newTag = editTagInput.value.trim();
+    if (newTag) {
+      editTags.value.push(newTag);
+      editTagInput.value = '';
+    }
+  };
+  
+  const addEditMember = () => {
+    const newMember = editMemberInput.value.trim();
+    if (newMember) {
+      editMembers.value.push(newMember);
+      editMemberInput.value = '';
+    }
+  };
+  
+  const updateTask = () => {
+    const column = columns.value.find(col => col.id === selectedEditTaskColumnId.value);
+    if (!column) {
+      alert('Column not found');
+      return;
+    }
+    const taskIndex = column.tasks.findIndex(t => t.id === editTaskId.value);
+    if (taskIndex !== -1) {
+      column.tasks[taskIndex] = {
+        id: editTaskId.value,
+        title: editTaskName.value,
+        labels: editTags.value,
+        assignees: editMembers.value
+      };
+    }
+    closeEditTaskModal();
+  };
+  
+  const closeEditTaskModal = () => {
+    openEditTaskModal.value = false;
+  };
   </script>
+  
   
 
   <style>
@@ -1021,6 +1113,197 @@ const deleteTask = (task: Task, column: Column) => {
     color: #c82333; 
     background-color: #ffffff;
   }
+  /* Modal Edit Column */
+#EditColumn .modal-overlay {
+    z-index: 1001;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.089); /* ความโปร่งของฉากหลัง */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   
+  #EditColumn .modal-content {
+    background: #fff;
+    border-radius: 8px;
+    border: 3px solid #000000;
+    width: 400px;
+    max-width: 90%;
+    height: 800px;
+    padding: 20px;
+    text-align: left;
+    font-size: 28px;
+  }
+  #EditColumn .modal-content h2 {
+    margin: 20px 0 10px 30px;
+  }
+  #EditColumn .modal-body {
+    margin-bottom: 20px;
+  }
+  #EditColumn .modal-body label {
+    margin: 30px 0 10px 30px;
+    font-size: 25px;
+    display: block;
+    font-weight: bold;
+  }
+  #EditColumn .modal-body input[type="text"] {
+    margin-left: 50px;
+    font-size: 20px;
+    width: 300px;
+    height: 50px;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+  #EditColumn .modal-body input[type="color"] {
+    border: 5px solid #000000;
+    margin-top: 20px;
+    margin-left: 50px;
+    width: 300px;
+    height: 300px;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+  
+  #EditColumn .modal-footerbtn {
+    text-align: right;
+  }
+  #EditColumn .modal-footerbtn button {
+    margin-top: 50px;
+    margin-left: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  #EditColumn .Done{
+    background-color: #28a745; 
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+    border: 2px solid black;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 100px;
+    cursor: pointer;
+  }
+  #EditColumn .Done:hover{
+    background-color: #ffffff;
+    color: #28a745;
+  }
+  #EditColumn .Cancle{
+    background-color: #F60000; 
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    color: #fff;
+    border: 2px solid black;
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 10px 15px;
+    width: 100px;
+    cursor: pointer;
+  }
+  
+  #EditColumn .Cancle:hover{
+    color: #ffffff;
+    background-color: #F60000; 
+  }
+
+  #EditTask .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* ปรับความโปร่งใส */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001; /* ให้ modal อยู่ชั้นบนสุด */
+}
+
+#EditTask .modal-content {
+  background: #fff;
+  border-radius: 8px;
+  border: 3px solid #000;
+  width: 400px;
+  max-width: 90%;
+  padding: 20px;
+  text-align: left;
+  font-size: 28px;
+}
+
+#EditTask .modal-content h2 {
+  margin: 20px 0 10px 30px;
+}
+
+#EditTask .modal-body {
+  margin-bottom: 20px;
+}
+
+#EditTask .modal-body label {
+  margin: 30px 0 10px 30px;
+  font-size: 25px;
+  font-weight: bold;
+  display: block;
+}
+
+#EditTask .modal-body input[type="text"] {
+  margin-left: 50px;
+  font-size: 20px;
+  width: 300px;
+  height: 50px;
+  padding: 8px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+#EditTask .modal-footerbtn {
+  text-align: right;
+}
+
+#EditTask .modal-footerbtn button {
+  margin-top: 50px;
+  margin-left: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+#EditTask .Done {
+  background-color: #28a745;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: #fff;
+  border: 2px solid black;
+  width: 100px;
+}
+
+#EditTask .Done:hover {
+  background-color: #ffffff;
+  color: #28a745;
+}
+
+#EditTask .Cancle {
+  background-color: #F60000;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: #fff;
+  border: 2px solid black;
+  width: 100px;
+}
+
+#EditTask .Cancle:hover {
+  background-color: #F60000;
+  color: #ffffff;
+}
+
   </style>
   
