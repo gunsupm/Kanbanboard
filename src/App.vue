@@ -108,37 +108,44 @@
   tag="div"
   class="columns-container"
 >
-  <!-- Slot สำหรับ item -->
   <template #item="{ element, index }">
     <div class="column" :style="{ backgroundColor: element.color }">
       <h2>{{ element.name }}</h2>
-      <div
-        v-for="task in element.tasks"
-        :key="task.id"
-        class="task"
+      <!-- Draggable สำหรับ Tasks ในแต่ละ Column -->
+      <Draggable
+      v-model="element.tasks"
+      group="tasks"
+      item-key="id"
+      options="{ dropOnEmpty: true }"
+      @end="onTaskReorder"
+      tag="div"
+      class="task-container"
       >
-        <p class="task-name">{{ task.title }}</p>
-        <!-- แสดง Tags -->
-        <div class="tag-container">
-          <span
-            v-for="(tag, idx) in task.labels"
-            :key="idx"
-            class="tag"
-          >
-            #{{ tag }}
-          </span>
-        </div>
-        <!-- แสดง Members -->
-        <div class="member-container">
-          <span
-            v-for="(member, idx) in task.assignees"
-            :key="idx"
-            class="member"
-          >
-            @{{ member }}
-          </span>
-        </div>
-      </div>
+        <template #item="{ element: task }">
+          <div class="task">
+            <p class="task-name">{{ task.title }}</p>
+            <div class="tag-container">
+              <span
+                v-for="(tag, idx) in task.labels"
+                :key="idx"
+                class="tag"
+              >
+                {{ tag }}
+              </span>
+            </div>
+           
+            <div class="member-container">
+              <span
+                v-for="(member, idx) in task.assignees"
+                :key="idx"
+                class="member"
+              >
+                @{{ member }}
+              </span>
+            </div>
+          </div>
+        </template>
+      </Draggable>
     </div>
   </template>
 </Draggable>
@@ -571,6 +578,7 @@ const saveTitle = () => {
 .tag-container,
 .member-container {
   margin-top: 5px;
+min-height: 50px; 
 }
 .tag{
   background-color: #F60000;
