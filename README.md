@@ -11,7 +11,9 @@ View the full Figma Design [here](https://www.figma.com/design/34dyAX3tRuzPpLmg0
 - Task management with multiple columns: To Do, In Progress, and Done
 - Drag and drop tasks between columns
 - Add, edit, and delete tasks
-- Persistent storage using localStorage (or integrate with a backend if needed)
+- Log in And Register 
+- Persistent storage using localStorage
+
   
 ## Project Setup
 
