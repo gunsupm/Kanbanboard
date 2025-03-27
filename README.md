@@ -19,7 +19,7 @@ To get started with this project, follow these steps:
 git clone https://github.com/yourusername/kanban-board-vue3-ts.git
 cd kanban-board-vue3-ts
 
-### 2. Setting
+### 2. Run This
 
 ```bash
 Npm install
