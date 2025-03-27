@@ -11,4 +11,6 @@ export default defineComponent({
   components: {Register}
 });
   </script>
-  
+  <style>
+
+</style>

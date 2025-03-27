@@ -100,54 +100,89 @@
     </div>
   
     <Draggable
-    v-model="columns"
-    group="columns"
-    item-key="id"
-    @end="onColumnsReorder"
-    tag="div"
-    class="columns-container"
-  >
-    <template #item="{ element }">
-      <div class="column" :style="{ backgroundColor: element.color }">
+  v-model="columns"
+  group="columns"
+  item-key="id"
+  @end="onColumnsReorder"
+  tag="div"
+  class="columns-container"
+>
+  <template #item="{ element }">
+    <div class="column" :style="{ backgroundColor: element.color }">
+      <div class="column-header">
         <h2>{{ element.name }}</h2>
-        
-        <!-- Draggable สำหรับ Tasks ในแต่ละ Column -->
-        <Draggable
-          v-model="element.tasks"
-          group="tasks"
-          item-key="id"
-          :options="{ dropOnEmpty: true }"
-          @end="onTaskReorder"
-          tag="div"
-          class="task-container"
-        >
-          <template #item="{ element: task }">
-            <div class="task">
+        <!-- Edit Column BTN-->
+        <button class="column-menu-button" @click="toggleColumnMenu(element.id)">
+          <img class="edit-column" src="../assets/pic/moreicon.png" alt="Edit">
+        </button>
+        <!-- Dropdown Menu for Column -->
+        <div v-if="menuOpenColumnId === element.id"  class="column-menu-dropdown">
+          <button class="EditCL" @click="openEditColumnModal(element)">Edit</button>
+          <br>
+          <button class="DelCL" @click="deleteColumn(element)">Delete</button>
+        </div>
+      </div>
+      <!-- Draggable for Tasks in Column -->
+      <Draggable
+        v-model="element.tasks"
+        group="tasks"
+        item-key="id"
+        :options="{ dropOnEmpty: true }"
+        @end="onTaskReorder"
+        tag="div"
+        class="task-container"
+      >
+        <template #item="{ element: task }">
+          <div class="task">
+            <div class="task-header">
               <p class="task-name">{{ task.title }}</p>
-              
-              <div class="tag-container">
-                <span v-for="(tag, idx) in task.labels" :key="idx" class="tag">
-                  {{ tag }}
-                </span>
-              </div>
-  
-              <div class="member-container">
-                <span v-for="(member, idx) in task.assignees" :key="idx" class="member">
-                  @{{ member }}
-                </span>
+              <div class="task-actions">
+                <span class="edit-task" @click="editTask(task, element)">✏️</span>
+                <span class="delete-task" @click="deleteTask(task, element)">🗑️</span>
               </div>
             </div>
-          </template>
-        </Draggable>
-      </div>
-    </template>
-  </Draggable>
+            <div class="tag-container">
+              <span v-for="(tag, idx) in task.labels" :key="idx" class="tag">
+                {{ tag }}
+              </span>
+            </div>
+            <div class="member-container">
+              <span v-for="(member, idx) in task.assignees" :key="idx" class="member">
+                @{{ member }}
+              </span>
+            </div>
+          </div>
+        </template>
+      </Draggable>
+    </div>
+  </template>
+</Draggable>
+
   
   <div class="ADDCOL">
       <button class="NEWCOLUMN" @click="openModalAddCol = true">ADD COLUMN</button>
     </div>
+
     
-  
+   <!-- Modal Edit Column -->
+  <div id="EditColumn">
+    <div v-if="openEditColumnModalFlag" class="modal-overlay">
+      <div class="modal-content">
+        <h2>EDIT COLUMN</h2>
+        <div class="modal-body">
+          <label for="editColName">Column Name</label>
+          <input id="editColName" v-model="editColumnData.name" type="text" placeholder="Column name..." />
+          <label for="editColColor">Column Color</label>
+          <input id="editColColor" v-model="editColumnData.color" type="color" />
+        </div>
+        <div class="modal-footerbtn">
+          <button class="Done" @click="updateColumn">Done</button>
+          <button class="Cancle" @click="closeEditColumnModal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
        <!-- Modal Add Column -->
       <div id="Column">
        <div v-if="openModalAddCol" class="modal-overlay">
@@ -183,11 +218,13 @@
   </template>
   
   <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref, watch, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
     import Draggable from 'vuedraggable';
-
-    const route = useRoute();
+    import { useRouter } from 'vue-router'
+  
+    const router = useRouter();
+    const route = useRoute()
   //สร้าง interface task and column
   interface Task {
     id: number;
@@ -204,54 +241,72 @@
   
   }
   
-  // เก็บข้อมูล column
-  const columns = ref<Column[]>([
-  {
-      id: 1,
-      name: 'To Do',
-      color: '#ff0965',
-      tasks: [
-        {
-          id: 101,
-          title: 'List function for our website',
-          labels: ['UI'],
-          assignees: ['Gamer']
-        },
-        {
-          id: 102,
-          title: 'Design website',
-          labels: [],
-          assignees: ['Gamer']
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Doing',
-      color: '#add8e6',
-      tasks: [
-        {
-          id: 201,
-          title: 'Create Kanban website',
-          labels: ['API'],
-          assignees: ['Gunner']
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Done',
-      color: '#90ee90',
-      tasks: [
-        {
-          id: 301,
-          title: 'Dealing with clients',
-          labels: ['Cust'],
-          assignees: ['Jane','Fore']
-        }
-      ]
-    }
-  ]);
+  // load column in Local
+  const columns = ref<Column[]>([]);
+onMounted(() => {
+  const storedColumns = localStorage.getItem('kanbanColumns');
+  if (storedColumns) {
+    columns.value = JSON.parse(storedColumns);
+  } else {
+    // if Don't Have Data
+    columns.value = [
+      {
+        id: 1,
+        name: 'To Do',
+        color: '#7D74FF',
+        tasks: [
+          {
+            id: 101,
+            title: 'List function for our website',
+            labels: ['UX'],
+            assignees: ['James','Game']
+          },
+          {
+            id: 102,
+            title: 'Design website',
+            labels: ['Ui'],
+            assignees: ['Gunner']
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Doing',
+        color: '#00B2FF',
+        tasks: [
+          {
+            id: 201,
+            title: 'Create Kanban website',
+            labels: ['Main'],
+            assignees: ['All']
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Done',
+        color: '#16A816',
+        tasks: [
+          {
+            id: 301,
+            title: 'Dealing with clients',
+            labels: ['Deal','Cust'],
+            assignees: ['Jane','Fore']
+          }
+        ]
+      }
+    ];
+  }
+});
+
+// Save Columns to Local
+watch(
+  columns,
+  (newColumns) => {
+    localStorage.setItem('kanbanColumns', JSON.stringify(newColumns));
+  },
+  { deep: true }
+);
   
   // Event  drag Task
   const onTaskReorder = (event: any) => {
@@ -362,7 +417,7 @@
     }
   
     columns.value.push({
-      id: Date.now(),  // ใช้ timestamp หรือ uuid ก็ได้
+      id: Date.now(),  
       name: colName.value,
       color: colColor.value,
       tasks: []
@@ -383,13 +438,13 @@
       assignees: []
     });
   };
-  // สร้าง reactive state ด้วย ref
+  // reactive by ref
   const isEditing = ref(false);
   const titleText = ref([{ name: 'Todo' }]);
   const newTitle = ref('');
   
   
-  // ฟังก์ชัน toggleEdit
+  // toggleEdit
   const toggleEdit = () => {
     isEditing.value = !isEditing.value;
     if (isEditing.value) {
@@ -397,7 +452,7 @@
     }
   };
   
-  // ฟังก์ชัน saveTitle
+  // saveTitle
   const saveTitle = () => {
     if (newTitle.value.trim().length === 0) {
       titleText.value[0].name = 'Name..';
@@ -406,8 +461,52 @@
     }
     isEditing.value = false;
   };
+
+  // --- Column Menu for Edit/Delete ---
+const menuOpenColumnId = ref<number | null>(null);
+const toggleColumnMenu = (columnId: number) => {
+  menuOpenColumnId.value = menuOpenColumnId.value === columnId ? null : columnId;
+};
+const deleteColumn = (column: Column) => {
+  if (confirm(`Delete column "${column.name}"?`)) {
+    columns.value = columns.value.filter(c => c.id !== column.id);
+  }
+};
+
+// --- Modal Edit Column State ---
+const openEditColumnModalFlag = ref(false);
+const editColumnData = ref<{ id: number; name: string; color: string }>({ id: 0, name: '', color: '' });
+const openEditColumnModal = (column: Column) => {
+  editColumnData.value = { ...column };
+  openEditColumnModalFlag.value = true;
+  menuOpenColumnId.value = null;
+};
+const closeEditColumnModal = () => {
+  openEditColumnModalFlag.value = false;
+};
+const updateColumn = () => {
+  const idx = columns.value.findIndex(c => c.id === editColumnData.value.id);
+  if (idx !== -1) {
+    columns.value[idx].name = editColumnData.value.name;
+    columns.value[idx].color = editColumnData.value.color;
+  }
+  closeEditColumnModal();
+};
+
+// --- Task Actions (Edit/Delete) ---
+// Edit Task and Delete Task can't add modal all inline
+const editTask = (task: Task, column: Column) => {
+  alert(`Edit task: ${task.title} in column: ${column.name}`);
+};
+const deleteTask = (task: Task, column: Column) => {
+  if (confirm(`Delete task "${task.title}"?`)) {
+    column.tasks = column.tasks.filter(t => t.id !== task.id);
+  }
+};
+
   </script>
   
+
   <style>
   @import url("https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
   #app {
@@ -531,7 +630,72 @@
   }
   
   /*Column*/
-  
+
+  .column-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px); /* ปรับระยะห่างจากปุ่มตามต้องการ */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  text-align: left;
+  z-index: 10;
+}
+.column-menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  border: none;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 16px;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.column-menu-dropdown button:hover {
+  background-color: #c5c5c5;
+}
+
+.EditCL {
+  color: #007bff; 
+}
+
+.DelCL {
+  color: #dc3545; 
+}
+
+.column-menu-dropdown button:focus {
+  outline: none;
+  background-color: #e9ecef;
+}
+
+
+  .column-header {
+  position: relative;
+  text-align: center; /* จัดให้ h2 อยู่ตรงกลาง */
+  padding: 0 20px;    /* ปรับ padding ตามที่ต้องการ */
+}
+
+.column-header h2 {
+  margin: 0;
+}
+
+.column-menu-button {
+  position: absolute;     
+  left: 85%;;    
+  top: 50%;
+  transform: translateY(-50%); /* จัดแนวแกนตั้งให้ตรงกลาง */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+
   .columns-container {
     display: flex;
     gap: 50px;
@@ -578,17 +742,21 @@
   min-height: 50px; 
   }
   .tag{
+    color: #ffffff;
     background-color: #F60000;
     margin-left: 10px;
+    border-radius: 10px;
+    padding: 3px 10px ;
+    font-size: 14px;
   }
   .member {
     display: inline-block;
     color: #333;
     border-radius: 3px;
     padding: 3px 6px;
+    margin-top: 10px;
     margin-right: 5px;
     font-size: 14px;
-    margin-left: 10px;
   }
   .tag-list,
   .member-list {
@@ -599,8 +767,24 @@
     display: flex;
     gap: 5px;
   }
-  
+  .member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .member {
+    color: #000000;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 20px;
+  }
   /* Modal Column */
+
+  .edit-column{
+    width: 52px;
+    height: auto;
+  }
   #Column .modal-overlay {
     z-index: 1001;
     position: fixed;
@@ -701,14 +885,15 @@
     color: #ffffff;
     background-color: #F60000; 
   }
-  
+
+      /* Card Modal */ 
   #Task .modal-overlay {
-    position: fixed; /* ทำให้ Modal อยู่เหนือเนื้อหาอื่น */
+    position: fixed; 
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); 
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.342); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -719,10 +904,10 @@
     background: #fff;
     border-radius: 8px;
     border: 3px solid #000000;
-    width: 400px;
+    width: 600px;
     max-width: 90%;
-    height: 800px;
-    padding: 20px;
+    height: auto;
+    padding: 70px ; 
     text-align: left;
     font-size: 28px;
   }
@@ -766,7 +951,7 @@
   #Task .tag-input-area button {
     padding: 10px 15px;
     background-color: #F61010; 
-    color: #fff;
+    color: #ffffff;
     border: 2px solid black;
     font-weight: bold;
     border-radius: 10px;
@@ -774,11 +959,9 @@
   }
   .member-input-area button {
     padding: 10px 15px;
-    background-color: #007bff; /* สีฟ้า */
     color: #fff;
     border: none;
     border-radius: 4px;
-    padding: 10px 15px;
     background-color: #F61010; 
     color: #fff;
     border: 2px solid black;
@@ -793,20 +976,6 @@
     color: #F61010;
   }
   #Task .tag-list,
-  .member-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  #Task .tag,
-  .member {
-    background-color: #e9ecef; /* สีเทาอ่อน */
-    color: #333;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 20px;
-  }
   #Task .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -823,7 +992,6 @@
     background-color: #28a745; 
     border: none;
     border-radius: 4px;
-    padding: 10px 15px;
     color: #fff;
     border: 2px solid black;
     font-weight: bold;
