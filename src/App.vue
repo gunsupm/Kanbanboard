@@ -19,9 +19,10 @@
     <button class="editred" @click="toggleEdit">
       <img src="../pic/editredicon.png" />
     </button>
-    <button class="ADDTASKBTN" @click="openTaskModal"> NEW TASK </button>
+    <button class="ADDTASKBTN"  @click="openTaskModal = true"> NEW TASK </button>
   </div>
   <!-- Modal สำหรับ Add Task -->
+   <div id="Task">
   <div v-if="openTaskModal" class="modal-overlay">
       <div class="modal-content">
         <h2>NEW TASK</h2>
@@ -95,6 +96,7 @@
         </div>
       </div>
     </div>
+  </div>
 
   <!-- Columns -->
   <div class="columns-container">
@@ -189,7 +191,7 @@ interface Column {
 
 // เก็บข้อมูล column
 const columns = ref<Column[]>([
-  {
+{
     id: 1,
     name: 'To Do',
     color: '#f5f5f5',
@@ -208,8 +210,111 @@ const columns = ref<Column[]>([
       }
     ]
   },
-  ]);
-// State สำหรับควบคุม modal
+  {
+    id: 2,
+    name: 'Doing',
+    color: '#add8e6',
+    tasks: [
+      {
+        id: 201,
+        title: 'Create Kanban website',
+        labels: ['API'],
+        assignees: ['Gunner']
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Done',
+    color: '#90ee90',
+    tasks: [
+      {
+        id: 301,
+        title: 'Dealing with clients',
+        labels: ['Cust'],
+        assignees: ['Jane','Fore']
+      }
+    ]
+  }
+]);
+
+//-Modal Task-//
+const openTaskModal = ref(false);
+
+// State สำหรับ Task ใหม่
+const selectedColumnId = ref<number | ''>(''); // เก็บ id ของ Column ที่เลือก
+const taskName = ref('');
+const tags = ref<string[]>([]);
+const members = ref<string[]>([]);
+
+// ตัวแปรสำหรับเก็บ input ชั่วคราว ก่อนจะ add เข้า array
+const tagInput = ref('');
+const memberInput = ref('');
+
+// เปิด/ปิด Modal
+const closeTaskModal = () => {
+  openTaskModal.value = false;
+  // เคลียร์ฟอร์ม
+  selectedColumnId.value = '';
+  taskName.value = '';
+  tags.value = [];
+  members.value = [];
+  tagInput.value = '';
+  memberInput.value = '';
+};
+
+// เพิ่ม Tag
+const addTag = () => {
+  const newTag = tagInput.value.trim();
+  if (newTag) {
+    tags.value.push(newTag);
+    tagInput.value = '';
+  }
+};
+
+// เพิ่ม Member
+const addMember = () => {
+  const newMember = memberInput.value.trim();
+  if (newMember) {
+    members.value.push(newMember);
+    memberInput.value = '';
+  }
+};
+
+// Confirm สร้าง Task
+const confirmAddTask = () => {
+  // ตรวจสอบว่าเลือก column, ใส่ชื่อ task หรือยัง
+  if (!selectedColumnId.value) {
+    alert('Please select a column');
+    return;
+  }
+  if (!taskName.value.trim()) {
+    alert('Please enter a task name');
+    return;
+  }
+
+  // หา Column ที่จะเพิ่ม Task
+  const column = columns.value.find(col => col.id === selectedColumnId.value);
+  if (!column) {
+    alert('Column not found');
+    return;
+  }
+
+  // สร้าง Task ใหม่
+  const newTask: Task = {
+    id: Date.now(),
+    title: taskName.value,
+    labels: tags.value,
+    assignees: members.value
+  };
+
+  column.tasks.push(newTask);
+
+  // ปิด modal และเคลียร์ค่าต่างๆ
+  closeTaskModal();
+};
+
+// State สำหรับควบคุม modalColumn
 const openModalAddCol = ref(false);
 // State สำหรับเก็บชื่อคอลัมน์ใหม่
 const colName = ref('');
@@ -374,7 +479,6 @@ const saveTitle = () => {
 }
 
 .ADDCOL{
-  z-index: -1;
   border-radius: 8px;
   width: 150px;
   max-width: 90%;
@@ -420,11 +524,44 @@ const saveTitle = () => {
   border-radius: 5px;
 }
 
+/*Task*/ 
 .task {
   background: white;
   padding: 5px;
   margin-top: 5px;
   border-radius: 3px;
+  text-align: left;
+}
+.task-name {
+  font-weight: bold;
+  color: #000000;
+  margin-left: 10px;
+}
+.tag-container,
+.member-container {
+  margin-top: 5px;
+}
+.tag{
+  background-color: #F60000;
+  margin-left: 10px;
+}
+.member {
+  display: inline-block;
+  color: #333;
+  border-radius: 3px;
+  padding: 3px 6px;
+  margin-right: 5px;
+  font-size: 14px;
+  margin-left: 10px;
+}
+.tag-list,
+.member-list {
+  margin: 10px 0;
+}
+.tag-input-area,
+.member-input-area {
+  display: flex;
+  gap: 5px;
 }
 
 /* Modal */
@@ -493,4 +630,118 @@ const saveTitle = () => {
   padding: 8px 16px;
   cursor: pointer;
 }
+
+#Task .modal-overlay {
+  position: fixed; /* ทำให้ Modal อยู่เหนือเนื้อหาอื่น */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* พื้นหลังโปร่งแสงสีดำ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* ทำให้ Modal อยู่ด้านบนสุด */
+}
+
+#Task .modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* เงาเบาๆ */
+}
+#Task .modal-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333;
+}
+#Task .modal-body {
+  margin-bottom: 20px;
+}
+#Task .modal-body label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+#Task .modal-body input[type="text"],
+.modal-body select {
+  width: calc(100% - 22px); /* ปรับขนาดให้พอดีกับ padding */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#Task .modal-body select {
+  cursor: pointer;
+}
+
+#Task .tag-input-area,
+.member-input-area {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+#Task .tag-input-area input,
+.member-input-area input {
+  flex: 1;
+}
+#Task .tag-input-area button,
+.member-input-area button {
+  padding: 10px 15px;
+  background-color: #007bff; /* สีฟ้า */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#Task .tag-input-area button:hover,
+.member-input-area button:hover {
+  background-color: #0056b3; /* สีฟ้าเข้มขึ้นเมื่อ hover */
+}
+#Task .tag-list,
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+#Task .tag,
+.member {
+  background-color: #e9ecef; /* สีเทาอ่อน */
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+#Task .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+#Task .modal-footer button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#Task .modal-footer button:first-child {
+  background-color: #28a745; /* สีเขียว */
+  color: #fff;
+}
+#Task .modal-footer button:first-child:hover {
+  background-color: #218838; /* สีเขียวเข้มขึ้นเมื่อ hover */
+}
+#Task .modal-footer button:last-child {
+  background-color: #dc3545; /* สีแดง */
+  color: #fff;
+}
+#Task .modal-footer button:last-child:hover {
+  background-color: #c82333; /* สีแดงเข้มขึ้นเมื่อ hover */
+}
+
 </style>
