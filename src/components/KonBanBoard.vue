@@ -137,7 +137,8 @@
             <div class="task-header">
               <p class="task-name">{{ task.title }}</p>
               <div class="task-actions">
-              <span class="edit-task" @click="openEditTaskModal(task, element)">✏️</span>
+              <span class="edit-task" @click="openEditTaskModalFunc(task, element)">✏️</span>
+              <span class="delete-task" @click="deleteTask(task, element)">🗑️</span>
 
               </div>
             </div>
@@ -184,74 +185,16 @@
 </div>
 
 <!-- Modal Edit Task -->
+<!-- Modal Edit Task -->
 <div id="EditTask">
   <div v-if="openEditTaskModal" class="modal-overlay">
     <div class="modal-content">
       <h2>EDIT TASK</h2>
       <div class="modal-body">
-        <!-- เลือก Column (ถ้าต้องการให้สามารถเปลี่ยน column ได้) -->
-        <label>Choose Column</label>
-        <select v-model="selectedEditTaskColumnId">
-          <option disabled value="">Select column...</option>
-          <option
-            v-for="column in columns"
-            :key="column.id"
-            :value="column.id"
-          >
-            {{ column.name }}
-          </option>
-        </select>
 
         <!-- Task Name -->
         <label>Task name</label>
-        <input
-          v-model="editTaskName"
-          placeholder="Task name..."
-          type="text"
-        />
-
-        <!-- Tag -->
-        <label>Tag</label>
-        <div class="tag-input-area">
-          <input
-            v-model="editTagInput"
-            placeholder="name..."
-            type="text"
-          />
-          <button @click="addEditTag">ADD TAG</button>
-        </div>
-        <!-- แสดงรายการ Tag ที่ผู้ใช้แก้ไข -->
-        <div class="tag-list">
-          <span
-            v-for="(tag, idx) in editTags"
-            :key="idx"
-            class="tag"
-          >
-            #{{ tag }}
-          </span>
-        </div>
-
-        <!-- Member -->
-        <label>Member</label>
-        <div class="member-input-area">
-          <input
-            v-model="editMemberInput"
-            placeholder="@..."
-            type="text"
-          />
-          <button @click="addEditMember">ADD MEMBER</button>
-        </div>
-        <!-- แสดงรายการ Member ที่ผู้ใช้แก้ไข -->
-        <div class="member-list">
-          <span
-            v-for="(member, idx) in editMembers"
-            :key="idx"
-            class="member"
-          >
-            @{{ member }}
-          </span>
-        </div>
-      </div>
+        <input v-model="editTaskName" placeholder="Task name..." type="text" />
       <div class="modal-footer">
         <button @click="updateTask">Done</button>
         <button @click="closeEditTaskModal">Cancel</button>
@@ -259,6 +202,8 @@
     </div>
   </div>
 </div>
+</div>
+
 
 
        <!-- Modal Add Column -->
@@ -546,8 +491,6 @@
   const editTaskName = ref('');
   const editTags = ref<string[]>([]);
   const editMembers = ref<string[]>([]);
-  const editTagInput = ref('');
-  const editMemberInput = ref('');
   
   const openEditTaskModalFunc = (task: Task, column: Column) => {
     editTaskId.value = task.id;
@@ -556,22 +499,6 @@
     editTags.value = [...task.labels];
     editMembers.value = [...task.assignees];
     openEditTaskModal.value = true;
-  };
-  
-  const addEditTag = () => {
-    const newTag = editTagInput.value.trim();
-    if (newTag) {
-      editTags.value.push(newTag);
-      editTagInput.value = '';
-    }
-  };
-  
-  const addEditMember = () => {
-    const newMember = editMemberInput.value.trim();
-    if (newMember) {
-      editMembers.value.push(newMember);
-      editMemberInput.value = '';
-    }
   };
   
   const updateTask = () => {
@@ -595,6 +522,12 @@
   const closeEditTaskModal = () => {
     openEditTaskModal.value = false;
   };
+  
+  const deleteTask = (task: Task, column: Column) => {
+  if (confirm(`Delete task "${task.title}"?`)) { 
+    column.tasks = column.tasks.filter(t => t.id !== task.id);
+  }
+};
   </script>
   
   
@@ -1215,7 +1148,8 @@
     background-color: #F60000; 
   }
 
-  #EditTask .modal-overlay {
+  /* Style สำหรับ Edit Task Modal */
+#EditTask .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -1254,7 +1188,8 @@
   display: block;
 }
 
-#EditTask .modal-body input[type="text"] {
+#EditTask .modal-body input[type="text"],
+#EditTask .modal-body select {
   margin-left: 50px;
   font-size: 20px;
   width: 300px;
@@ -1264,46 +1199,55 @@
   margin-bottom: 10px;
 }
 
-#EditTask .modal-footerbtn {
+/* Footer ที่ใช้ class .modal-footer */
+#EditTask .modal-footer {
   text-align: right;
+  margin-top: 30px;
 }
 
-#EditTask .modal-footerbtn button {
-  margin-top: 50px;
+#EditTask .modal-footer button {
   margin-left: 10px;
   padding: 10px 15px;
   cursor: pointer;
-}
-
-#EditTask .Done {
-  background-color: #28a745;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 15px;
-  color: #fff;
-  border: 2px solid black;
   width: 100px;
 }
 
-#EditTask .Done:hover {
+/* ปุ่ม Done */
+#EditTask .modal-footer button:first-child {
+  background-color: #28a745;
+  border: 2px solid black;
+  border-radius: 10px;
+  color: #fff;
+}
+
+#EditTask .modal-footer button:first-child:hover {
   background-color: #ffffff;
   color: #28a745;
 }
 
-#EditTask .Cancle {
+/* ปุ่ม Cancel */
+#EditTask .modal-footer button:last-child {
   background-color: #F60000;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 15px;
-  color: #fff;
   border: 2px solid black;
-  width: 100px;
+  border-radius: 10px;
+  color: #fff;
 }
 
-#EditTask .Cancle:hover {
+#EditTask .modal-footer button:last-child:hover {
   background-color: #F60000;
   color: #ffffff;
 }
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-actions {
+  display: flex;
+  gap: 8px; /* ปรับระยะห่างระหว่างไอคอนตามต้องการ */
+}
+
 
   </style>
   
