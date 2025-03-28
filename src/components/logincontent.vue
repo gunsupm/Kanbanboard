@@ -56,7 +56,6 @@ export default {
     const password = ref('')
     const showPassword = ref(false)
     const router = useRouter()
-    const loginName = ref(localStorage.getItem('loginName') || 'YourUsername')
 
   // ถ้าเคยล็อกอินแล้ว ข้ามหน้า Login ไปเลยข้อมูลจาก Local
     onMounted(() => {

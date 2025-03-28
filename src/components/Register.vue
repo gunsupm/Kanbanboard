@@ -33,7 +33,7 @@
         </div>
 
         <p class="login-text">
-          Don't have an account?
+          have an account?
           <router-link to="/" class="login-link">
             Login
           </router-link>

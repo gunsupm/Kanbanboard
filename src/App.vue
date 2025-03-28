@@ -53,7 +53,7 @@ export default defineComponent({
     margin-right: 60px;
   }
 
-@media (max-width: 1200px) {
+@media (max-width: 1800px) {
   #app{      
     overflow-x: auto;
     align-items: center;
