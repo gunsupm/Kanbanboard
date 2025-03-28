@@ -8,6 +8,9 @@ import KonBanBoard from '@/components/KonBanBoard.vue';
 
 export default defineComponent({
   name: 'Board',
-  components: { KonBanBoard }
+  components: { KonBanBoard },
+  mounted() {
+    document.title = 'KanBanBoard';
+    }
 });
 </script>
