@@ -47,4 +47,44 @@ export default defineComponent({
     height: auto;
     margin-right: 60px;
   }
+
+@media (max-width: 1200px) {
+  #app{      
+    overflow-x: auto;
+    align-items: center;
+    text-align: center;
+  }
+  .board-container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+  .edit-column
+  {
+    width: 20px;
+    height: auto;
+  }
+  .nav{
+  width: 200px; /* ความกว้างตามต้องการ */
+  background: #eee; /* สีพื้นหลังเพื่อดูง่ายขึ้น */
+  overflow: auto;   /* กันไม่ให้เนื้อหาล้น */
+}
+.columns-container {
+    flex-direction: column; 
+    flex-wrap: nowrap;      
+  }
+  .column {      
+    flex: none;            
+  }
+.ADDCOL {
+    border-radius: 8px;
+    width: 150px;
+    max-width: 90%;
+    height: 100vh;
+    bottom: 0;
+    padding: 0;
+    margin-top: 30px;
+    margin-left: 50px;
+  }
+}
 </style>
