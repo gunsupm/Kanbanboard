@@ -5,13 +5,13 @@ import Regis from '@/views/Regis.vue';
 
 const routes = [
   {
-    path: '/',
+    path: '/Board',
     name: 'Board',
     component: Board,
 
       },
   {
-    path: '/login',
+    path: '/',
     name: 'Login',
     component: Login
   },

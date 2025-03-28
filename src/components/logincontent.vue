@@ -2,7 +2,7 @@
   <div class="Page">
     <div class="login">
       <h2>Login</h2>
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="Login">
         <div class="input-group">
           <label for="username">Username</label>
           <input id="username" v-model="username" type="text" placeholder="Enter your username" required />
@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
+import { ref,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
@@ -56,41 +56,54 @@ export default {
     const password = ref('')
     const showPassword = ref(false)
     const router = useRouter()
+    const loginName = ref(localStorage.getItem('loginName') || 'YourUsername')
 
-    // สลับสถานะแสดง/ซ่อน password
+  // ถ้าเคยล็อกอินแล้ว ข้ามหน้า Login ไปเลยข้อมูลจาก Local
+    onMounted(() => {
+      const loggedIn = localStorage.getItem('isLoggedIn')
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+    router.push('/Board')
+  }
+})
+
     const togglePassword = () => {
       showPassword.value = !showPassword.value
     }
 
-    // ฟังก์ชันเมื่อกดปุ่ม Login
-    const handleLogin = () => {
-      // ดึงข้อมูลผู้ใช้จาก Local Storage
+    //Login Function
+    const Login = () => {
+
+      //Get Data Form Local
       const storedUser = localStorage.getItem('userData')
       if (!storedUser) {
         alert('ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน')
         return
       }
+      
 
       const parsedUser = JSON.parse(storedUser)
 
-      // ตรวจสอบข้อมูลผู้ใช้
+      //Check user
       if (
         parsedUser.username === username.value &&
         parsedUser.password === password.value
       ) {
         alert('Login สำเร็จ!')
-        router.push('/')
+        //Check Login ว่าเคยยัง
+        localStorage.setItem('loginName', username.value)
+    localStorage.setItem('isLoggedIn', 'true')
+    router.push('/Board')
       } else {
         alert('Login ไม่สำเร็จ Username หรือ Password ไม่ถูกต้อง')
       }
-    }
+  }
 
     return {
       username,
       password,
       showPassword,
       togglePassword,
-      handleLogin
+      Login
     }
   }
 }
@@ -99,8 +112,8 @@ export default {
 <style scoped>
 .Page {
   background-color: #E4E4E4; 
-  width: 100vw;       /* ครอบคลุมความกว้างของ viewport */
-  height: 100vh;      /* ครอบคลุมความสูงของ viewport */
+  width: 100vw;       
+  height: 100vh;      
   display: flex;
   justify-content: center;  
   align-items: center;     

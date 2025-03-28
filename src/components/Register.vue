@@ -34,7 +34,7 @@
 
         <p class="login-text">
           Don't have an account?
-          <router-link to="/login" class="login-link">
+          <router-link to="/" class="login-link">
             Login
           </router-link>
         </p>
@@ -52,21 +52,22 @@ import { useRouter } from 'vue-router'
 export default {
   name: 'Register',
   setup() {
+
+    
     const username = ref('')
     const email = ref('')
     const password = ref('')
 
-    // ตัวแปรควบคุมการแสดง/ซ่อนรหัสผ่าน
     const showPassword = ref(false)
 
     const router = useRouter()
 
-    // ฟังก์ชันสลับสถานะ showPassword
+    //Show Or Hide Password
     const togglePassword = () => {
       showPassword.value = !showPassword.value
     }
 
-    // ฟังก์ชันเมื่อกดปุ่ม Register
+    //register button
     const handleRegister = () => {
       const userData = {
         username: username.value,
@@ -74,15 +75,15 @@ export default {
         password: password.value
       }
       localStorage.setItem('userData', JSON.stringify(userData))
-      router.push('/login')
+      router.push('/')
     }
 
     return {
       username,
       email,
       password,
-      showPassword,    // ต้อง return ออกไปด้วย
-      togglePassword,  // ต้อง return ออกไปด้วย
+      showPassword,    
+      togglePassword,  
       handleRegister
     }
   }

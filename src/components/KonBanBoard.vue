@@ -5,11 +5,13 @@
           <h1>KanBan Board</h1>
         </div>
         <div class="right-content">
-          <h1>Login</h1>
-          <router-link to="/login" class="user-icon">
+          <label for="loginPage">Hello<span>{{ loginName }}</span></label>
+        <router-link to="/Board" class="user-icon">
             <img src="@/assets/pic/UserIcon.png" alt="User Icon">
           </router-link> 
-          
+          <router-link to="/" >
+          <button class="logoutbtn" @click="Logout"> <p>Logout</p></button>
+        </router-link> 
         </div>
       </div>
     </div>
@@ -241,10 +243,24 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, watch, onMounted } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { ref, watch, onMounted,computed } from 'vue';
   import Draggable from 'vuedraggable';
   
+  const loginName = ref('');
+
+  //ดึงข้อมูลหน้า Login จาก Local มาใช้แสดงใน Label Navbar
+
+    onMounted(() => {
+      loginName.value = localStorage.getItem('loginName') || 'Guest'
+    })
+  
+// Logout 
+const Logout = () => {
+  //Clare Login Data
+  localStorage.removeItem('isLoggedIn')
+  localStorage.removeItem('loginName')
+}
+
   interface Task {
     id: number;
     title: string;
@@ -261,65 +277,67 @@
 
   // Load & Save Columns
   const columns = ref<Column[]>([]);
+
   onMounted(() => {
-    const storedColumns = localStorage.getItem('kanbanColumns');
-    if (storedColumns) {
-      columns.value = JSON.parse(storedColumns);
-    } else {
-      columns.value = [
-        {
-          id: 1,
-          name: 'To Do',
-          color: '#7D74FF',
-          tasks: [
-            {
-              id: 101,
-              title: 'List function for our website',
-              labels: ['UX'],
-              assignees: ['James','Game']
-            },
-            {
-              id: 102,
-              title: 'Design website',
-              labels: ['Ui'],
-              assignees: ['Gunner']
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: 'Doing',
-          color: '#00B2FF',
-          tasks: [
-            {
-              id: 201,
-              title: 'Create Kanban website',
-              labels: ['Main'],
-              assignees: ['All']
-            }
-          ]
-        },
-        {
-          id: 3,
-          name: 'Done',
-          color: '#16A816',
-          tasks: [
-            {
-              id: 301,
-              title: 'Dealing with clients',
-              labels: ['Deal','Cust'],
-              assignees: ['Jane','Fore']
-            }
-          ]
-        }
-      ];
-    }
-  });
-  
+      const storedColumns = localStorage.getItem('kanbanColumns');
+      if (storedColumns) {
+        columns.value = JSON.parse(storedColumns);
+      } else {
+        columns.value = [
+          {
+            id: 1,
+            name: 'To Do',
+            color: '#7D74FF',
+            tasks: [
+              {
+                id: 101,
+                title: 'List function for our website',
+                labels: ['UX'],
+                assignees: ['James', 'Game']
+              },
+              {
+                id: 102,
+                title: 'Design website',
+                labels: ['Ui'],
+                assignees: ['Gunner']
+              }
+            ]
+          },
+          {
+            id: 2,
+            name: 'Doing',
+            color: '#00B2FF',
+            tasks: [
+              {
+                id: 201,
+                title: 'Create Kanban website',
+                labels: ['Main'],
+                assignees: ['All']
+              }
+            ]
+          },
+          {
+            id: 3,
+            name: 'Done',
+            color: '#16A816',
+            tasks: [
+              {
+                id: 301,
+                title: 'Dealing with clients',
+                labels: ['Deal', 'Cust'],
+                assignees: ['Jane', 'Fore']
+              }
+            ]
+            
+          }
+        ];
+      }
+    });
+
   watch(columns, (newColumns) => {
     localStorage.setItem('kanbanColumns', JSON.stringify(newColumns));
   }, { deep: true });
-  
+
   // Drag Events
   const onTaskReorder = (event: any) => {
     console.log('Task reordered or moved:', event);
@@ -513,6 +531,7 @@
     column.tasks = column.tasks.filter(t => t.id !== task.id);
   }
 };
+
   </script>
   
   
@@ -552,18 +571,41 @@
     display: flex;
     gap: 10px ;
     align-items: center;
+    text-transform: uppercase;
   }
   
-  .right-content h1{
+  .right-content label{
    color: #F60000;
-   font-size: 32px;
+   font-size: 20px;
   }
-  
-  
-  .user-icon img {
-    width: 50px;
-    height: auto;
+
+  .right-content span{
+   color: #000000;
+   font-size: 20px;
   }
+
+  .logoutbtn{
+    background-color: #F5F5F5;
+    border: 0px;
+    margin-right: 25px;
+    font-size: 12px;
+    display: inline-flex;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.5s; 
+}
+
+.logoutbtn:hover{
+  color: red;
+}
+
+
+.user-icon {
+  width: 40px;
+  height: auto; 
+  object-fit: contain; 
+}
   
   /*Content*/ 
   .content {
@@ -580,7 +622,7 @@
     border: 3px solid #000000;
     padding: 10px 40px;
     margin: 0px;
-    margin-right: 50px;
+    margin-right: 10px;
     justify-content: center;
     width: 200px;
     height: 70px;
@@ -604,7 +646,7 @@
     background-color: white;
     cursor: pointer;
     border: 0px;  
-    margin-top: 20px;
+    margin-top: 0px;
     margin-right: 50px;
   }
   
