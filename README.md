@@ -29,10 +29,11 @@ cd Kanbanboard
 
 ```bash
 Npm install
-```
-### Then
-
-
-```bash
 Npm run serve
+```
+
+If npm error, try this in Windows PowerShell:
+
+```
+   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
