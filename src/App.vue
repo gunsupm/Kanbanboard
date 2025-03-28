@@ -19,7 +19,7 @@ export default defineComponent({
   components: { Board },
   mounted() {
     document.title = 'KanBanBoard';
-  }
+    }
 
 });
 

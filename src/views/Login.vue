@@ -10,8 +10,5 @@ export default defineComponent({
   name: 'Login',
   components: { loginform },
 
-  mounted() {
-    document.title = 'Login';
-  }
 });
 </script>
