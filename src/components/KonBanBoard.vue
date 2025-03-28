@@ -18,7 +18,8 @@
     <div class="content">
       <div class="title">
         <h1 v-if="!isEditing">{{ titleText[0].name }}</h1> 
-        <input type="text" maxlength="9"  v-else v-model="newTitle" @keyup.enter="saveTitle"@blur="saveTitle"/>
+        <input type="text" maxlength="9"  v-else v-model="newTitle" @keyup.enter="saveTitle "@blur="saveTitle"/>
+        <button  @click="saveTitle" v-if="isEditing"><p>Save</p></button>
         </div>
       <button class="editred" @click="toggleEdit">
         <img src="@/assets/pic/editredicon.png" />
@@ -140,9 +141,9 @@
           <div class="task">
             <div class="task-header">
               <p class="task-name">{{ task.title }}</p>
-              <div class="task-actions">
-              <span class="edit-task" @click="openEditTaskModalFunc(task, element)">✏️</span>
-              <span class="delete-task" @click="deleteTask(task, element)">🗑️</span>
+              <div class="task-edit">
+              <button class="edit-task" @click="openEditTaskModalFunc(task, element)">✏️ </button>
+              <button class="delete-task" @click="deleteTask(task, element)">🗑️</button>
 
               </div>
             </div>
@@ -575,11 +576,13 @@ const Logout = () => {
   }
   
   .right-content label{
+  margin-top: 10px;
    color: #F60000;
    font-size: 20px;
   }
 
   .right-content span{
+   margin-left: 5px;
    color: #000000;
    font-size: 20px;
   }
@@ -626,22 +629,41 @@ const Logout = () => {
     justify-content: center;
     width: 200px;
     height: 70px;
+    flex-direction: column;
+    gap: 25px;
   }
   
   .title input {
-    font-size: 36px; /* ขนาดตัวอักษร */
+    font-size: 36px; 
     color: #F60000;
-    background-color: #f8f8f8;
-    font-family: Prompt, sans-serif; /* ฟอนต์ที่ใช้ */
-    font-weight: bold; /* น้ำหนักตัวอักษร */
-    border: 0 ; /* ขอบของ input */
-    padding: 10px 40px; /* ระยะห่างภายใน */
+    background-color: #F5F5F5;
+    font-family: Prompt, sans-serif; 
+    font-weight: bold; 
+    border: 0px ; 
+    padding: 10px 40px; 
     margin: 0px;
     width: 200px;
     height: 70px;
-    text-align: center; /* จัดข้อความให้อยู่กลาง */
+    margin-top:0px;
+    text-align: center;
+
   }
-  
+  .title button{
+    border: 2px solid #000;
+    border-radius: 10px;
+    width: 100px;
+    font-size: 15px;
+    cursor: pointer;
+    background-color: #F60000;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    z-index: 1000;
+  }
+  .title button:hover{
+    background-color: #28a745;
+  }
+
   .editred {
     background-color: white;
     cursor: pointer;
@@ -1281,9 +1303,12 @@ const Logout = () => {
   align-items: center;
 }
 
-.task-actions {
-  display: flex;
-  gap: 8px; 
+.edit-task,
+.delete-task {
+  margin-left: 5px;
+  cursor: pointer;
+  background-color: #ffffff;
+  border: 1px solid #000;
 }
 
 
