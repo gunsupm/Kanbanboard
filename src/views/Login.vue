@@ -8,6 +8,10 @@ import loginform from '@/components/logincontent.vue';
 
 export default defineComponent({
   name: 'Login',
-  components: { loginform }
+  components: { loginform },
+
+  mounted() {
+    document.title = 'Login';
+  }
 });
 </script>

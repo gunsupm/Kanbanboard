@@ -11,13 +11,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent} from 'vue';
 import Board from './views/Board.vue';
 
 export default defineComponent({
   name: 'App',
-  components: { Board }
+  components: { Board },
+  mounted() {
+    document.title = 'KanBanBoard';
+  }
+
 });
+
 </script>
 <style>
 /*Nav Bar*/ 
