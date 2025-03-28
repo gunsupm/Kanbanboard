@@ -557,7 +557,6 @@
   .right-content h1{
    color: #F60000;
    font-size: 32px;
-   font-weight: ;
   }
   
   
