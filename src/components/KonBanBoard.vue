@@ -5,6 +5,7 @@
           <h1>KanBan Board</h1>
         </div>
         <div class="right-content">
+          <h1>Login</h1>
           <router-link to="/login" class="user-icon">
             <img src="@/assets/pic/UserIcon.png" alt="User Icon">
           </router-link> 
@@ -111,6 +112,7 @@
     <div class="column" :style="{ backgroundColor: element.color }">
       <div class="column-header">
         <h2>{{ element.name }}</h2>
+        
         <!-- Edit Column BTN-->
         <button class="column-menu-button" @click="toggleColumnMenu(element.id)">
           <img class="edit-column" src="../assets/pic/moreicon.png" alt="Edit">
@@ -185,7 +187,6 @@
 </div>
 
 <!-- Modal Edit Task -->
-<!-- Modal Edit Task -->
 <div id="EditTask">
   <div v-if="openEditTaskModal" class="modal-overlay">
     <div class="modal-content">
@@ -257,10 +258,8 @@
     color: string;
     tasks: Task[];
   }
-  
-  // ---------------------
+
   // Load & Save Columns
-  // ---------------------
   const columns = ref<Column[]>([]);
   onMounted(() => {
     const storedColumns = localStorage.getItem('kanbanColumns');
@@ -321,9 +320,7 @@
     localStorage.setItem('kanbanColumns', JSON.stringify(newColumns));
   }, { deep: true });
   
-  // ---------------------
   // Drag Events
-  // ---------------------
   const onTaskReorder = (event: any) => {
     console.log('Task reordered or moved:', event);
   };
@@ -332,9 +329,7 @@
     console.log('Columns reordered:', event);
   };
   
-  // ---------------------
   // Modal Add Task
-  // ---------------------
   const openTaskModal = ref(false);
   const selectedColumnId = ref<number | ''>('');
   const taskName = ref('');
@@ -393,9 +388,7 @@
     closeTaskModal();
   };
   
-  // ---------------------
   // Modal Add Column
-  // ---------------------
   const openModalAddCol = ref(false);
   const colName = ref('');
   const colColor = ref('#000000');
@@ -420,9 +413,7 @@
     closeModal();
   };
   
-  // ---------------------
   // Title Editing
-  // ---------------------
   const isEditing = ref(false);
   const titleText = ref([{ name: 'Todo' }]);
   const newTitle = ref('');
@@ -439,9 +430,7 @@
     isEditing.value = false;
   };
   
-  // ---------------------
   // Column Edit / Delete
-  // ---------------------
   const menuOpenColumnId = ref<number | null>(null);
   const toggleColumnMenu = (columnId: number) => {
     menuOpenColumnId.value = menuOpenColumnId.value === columnId ? null : columnId;
@@ -453,9 +442,7 @@
     }
   };
   
-  // ---------------------
   // Modal Edit Column
-  // ---------------------
   const openEditColumnModalFlag = ref(false);
   const editColumnData = ref<{ id: number; name: string; color: string }>({ id: 0, name: '', color: '' });
   
@@ -482,9 +469,7 @@
     closeEditColumnModal();
   };
   
-  // ---------------------
   // Modal Edit Task
-  // ---------------------
   const openEditTaskModal = ref(false);
   const editTaskId = ref<number>(0);
   const selectedEditTaskColumnId = ref<number | ''>('');
@@ -562,11 +547,23 @@
     color: #F60000;
     margin-left: 100px; 
   }
+
+  .right-content {
+    display: flex;
+    gap: 10px ;
+    align-items: center;
+  }
+  
+  .right-content h1{
+   color: #F60000;
+   font-size: 32px;
+   font-weight: ;
+  }
+  
   
   .user-icon img {
     width: 50px;
     height: auto;
-    margin-right: 60px;
   }
   
   /*Content*/ 
@@ -1245,7 +1242,7 @@
 
 .task-actions {
   display: flex;
-  gap: 8px; /* ปรับระยะห่างระหว่างไอคอนตามต้องการ */
+  gap: 8px; 
 }
 
 
