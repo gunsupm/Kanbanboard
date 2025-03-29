@@ -1,7 +1,7 @@
 # Kanban Board - Vue 3
 This is a simple Kanban board built with Vue 3 and Vue Router. It allows you to manage tasks in different column with drag-and-drop functionality.
 
-# You can view the website ----> [here](https://gunsupm.github.io/Kanbanboard/)
+# You can view the website ---> [here](https://gunsupm.github.io/Kanbanboard/)
 
 Click Here to Visit My Profile
 
