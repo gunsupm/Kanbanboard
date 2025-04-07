@@ -38,3 +38,13 @@ If npm error, try this in Windows PowerShell:
 ```
    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+###  App running at:
+
+```
+Local:   http://localhost:8080/
+```
+
+```
+Network: http://192.168.1.140:8080/
+```
