@@ -41,10 +41,14 @@ If npm error, try this in Windows PowerShell:
 
 ###  App running at:
 
+
+Local:
 ```
-Local:   http://localhost:8080/
+http://localhost:8080/
 ```
 
+
+Network: 
 ```
-Network: http://192.168.1.140:8080/
+http://192.168.1.140:8080/
 ```
