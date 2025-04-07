@@ -127,6 +127,7 @@
           <button class="DelCL" @click="deleteColumn(element)">Delete</button>
       </div>
       </div>
+
       <!-- Draggable for Tasks in Column -->
       <Draggable
         v-model="element.tasks"
@@ -244,7 +245,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, watch, onMounted,computed } from 'vue';
+  import { ref, watch, onMounted } from 'vue';
   import Draggable from 'vuedraggable';
   
   const loginName = ref('');
