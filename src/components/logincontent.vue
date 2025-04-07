@@ -88,12 +88,13 @@ export default {
         parsedUser.password === password.value
       ) {
         alert('Login สำเร็จ!')
+        
         //Check Login ว่าเคยยัง
-        localStorage.setItem('loginName', username.value)
+    localStorage.setItem('loginName', username.value)
     localStorage.setItem('isLoggedIn', 'true')
     router.push('/Board')
       } else {
-        alert('Login ไม่สำเร็จ Username หรือ Password ไม่ถูกต้อง')
+        alert('Login ไม่สำเร็จ Username หรือ Password ไม่ถูกต้อง ลองอีกครั้งนะครับ')
       }
   }
 

@@ -1,14 +1,14 @@
 <template>
-  <KonBanBoard />
+  <KanBanBoard />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import KonBanBoard from '@/components/KonBanBoard.vue';
+import KanBanBoard from '@/components/KanBanBoard.vue';
 
 export default defineComponent({
   name: 'Board',
-  components: { KonBanBoard },
+  components: { KanBanBoard },
   mounted() {
     document.title = 'KanBanBoard';
     }
