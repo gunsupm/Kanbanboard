@@ -3,8 +3,6 @@ This is a simple Kanban board built with Vue 3 and Vue Router. It allows you to 
 
 # You can view the Website ---> [here](https://gunsupm.github.io/Kanbanboard/)
 
-Click Here to Visit My Profile
-
 # Figma 
 View the full Figma Design [here](https://www.figma.com/design/34dyAX3tRuzPpLmg0WHoZa/KanBanBoard?node-id=0-1&p=f&t=7jSwgVWvE7UgetJv-0)
 
